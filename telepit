@@ -309,7 +309,7 @@ sed -i -e 's/[|]//g' jatek.txt
 
 # Kiegészitők
 kiegeszit_apps() {
-zenity --list --title="$title" --text "Válasz a listából" --checklist --column Választ --column Alkalmazás FALSE "faenza-icon-theme " FALSE "numix-gtk-theme " FALSE "arc-icon-theme " FALSE "papirus-icon-theme "  --height=400 --width=400 > graf.txt
+zenity --list --title="$title" --text "Válasz a listából" --checklist --column Választ --column Alkalmazás FALSE "paper-gtk-theme-git " FALSE "numix-gtk-theme " FALSE "faenza-icon-theme " FALSE "arc-icon-theme " FALSE "papirus-icon-theme " FALSE "ttf-ubuntu-font-family " FALSE "ttf-inconsolata "  --height=400 --width=400 > graf.txt
 sed -i -e 's/[|]//g' graf.txt
 }
 
