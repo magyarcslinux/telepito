@@ -334,15 +334,15 @@ fi
 
 # További alkalmazások
 installapps() {
-extra=$(zenity --list --height=300 --title="$title" --radiolist --text "Szeretnél további alkalmazásokat telepíteni?\nVálász a kategóriákból és megjelenik az alkalmazáslista.\nA választás után vissza fog a telepítő ide lépni.\nHa befejezted a válogatást válaszd a 'Befejezés'-t." --column Jelöl --column Kategóriák FALSE internet FALSE média FALSE irodai FALSE hasznos FALSE Játékosoknak FALSE Kiegészítők FALSE befejezés  --height=400 --width=450)
+extra=$(zenity --list --height=300 --title="$title" --radiolist --text "Szeretnél további alkalmazásokat telepíteni?\nVálász a kategóriákból és megjelenik az alkalmazáslista.\nA választás után vissza fog a telepítő ide lépni.\nHa befejezted a válogatást válaszd a 'Befejezés'-t." --column Jelöl --column Kategóriák FALSE Internet FALSE Média FALSE Irodai FALSE Hasznos FALSE Játékosoknak FALSE Kiegészítők FALSE Befejezés  --height=400 --width=450)
 
-if [ "$extra" = "internet" ]
+if [ "$extra" = "Internet" ]
 	then internet_apps;installapps
-elif [ "$extra" = "média" ]
+elif [ "$extra" = "Média" ]
 	then media_apps;installapps
-elif [ "$extra" = "irodai" ]
+elif [ "$extra" = "Irodai" ]
 	then office_apps;installapps
-elif [ "$extra" = "hasznos" ]
+elif [ "$extra" = "Hasznos" ]
 	then utility_apps;installapps
 elif [ "$extra" = "Játékosoknak" ]
 	then jatek_apps;installapps
@@ -506,15 +506,14 @@ fi
 # Hálózat engedélyezése
 arch_chroot "systemctl enable NetworkManager"
 echo "50"
-echo "50"
+q
 
-# Pacman telepítése
-if [ "$pa" = "0" ]
-then echo "[magyarcs_repo]" >> /mnt/etc/pacman.conf;echo "SigLevel = Optional TrustAll" >> /mnt/etc/pacman.conf;echo "Server = https://raw.github.com/magyarcslinux/magyarcs_repo/master/x86_64" >> /mnt/etc/pacman.conf
+# Pamac telepítése
+echo "[magyarcs_repo]" >> /mnt/etc/pacman.conf;echo "SigLevel = Optional TrustAll" >> /mnt/etc/pacman.conf;echo "Server = https://raw.github.com/magyarcslinux/magyarcs_repo/master/x86_64" >> /mnt/etc/pacman.conf
 arch_chroot "pacman -Syy"
 arch_chroot "sudo pacman -S --noconfirm pamac-aur"
-fi
 
+# Multilib
 echo "" >> /mnt/etc/pacman.conf;echo "[multilib]" >> /mnt/etc/pacman.conf;echo "Include = /etc/pacman.d/mirrorlist" >> /mnt/etc/pacman.conf
 arch_chroot "pacman -Syy"
 
@@ -620,7 +619,7 @@ changeshell
 kernel
 vbox
 nvidia
-pamacaur
+#pamacaur
 cups
 displaymanager
 desktop
