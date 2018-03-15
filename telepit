@@ -303,7 +303,7 @@ sed -i -e 's/[|]//g' utils.txt
 
 # Játékosoknak
 jatek_apps() {
-zenity --list --title="$title" --text "Válasz a listából" --checklist --column Választ --column Alkalmazás FALSE "steam " FALSE "playonlinux " --height=400 --width=400 > jatek.txt
+zenity --list --title="$title" --text "Válasz a listából" --checklist --column Választ --column Alkalmazás FALSE "steam " FALSE "playonlinux " FALSE "lutris " --height=400 --width=400 > jatek.txt
 sed -i -e 's/[|]//g' jatek.txt
 }
 
