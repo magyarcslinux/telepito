@@ -152,7 +152,7 @@ configure() {
 # Nyelv  kiválasztása
 locales=$(cat /etc/locale.gen | grep -v "#  " | sed 's/#//g' | sed 's/ UTF-8//g' | grep .UTF-8 | sort | awk '{ printf "FALSE ""\0"$0"\0" }')
 
-locale=$(zenity --list --title="$title" --radiolist --text "Válasza ki a nyelvet.\nAlapértelmezett a magyar 'hu_HU.UTF-8'." --column Jelöl --column Nyelv TRUE hu_HU.UTF-8 $locales --height=350 --width=300)
+locale=$(zenity --list --title="$title" --radiolist --text "Válasza ki a nyelvet." --column Jelöl --column Nyelv $locales --height=350 --width=300)
 
 zenity --question --title="$title" --height=40 --text="szeretné megváltoztatni a billentyűzet modelljét?\nAlapértelmezés szerint a pc105." --height=150 --width=300
 mod="$?"
