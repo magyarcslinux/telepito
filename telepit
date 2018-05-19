@@ -426,8 +426,7 @@ export LANG=${locale}
 
 #Bilentyűzet kiosztás
 mkdir -p /mnt/etc/X11/xorg.conf.d/
-echo -e 'Section "InputClass"\n\tIdentifier "system-keyboard"\n\tMatchIsKeyboard "on"\n\tOption "XkbLayout" "'$layout'"\n\tOption "XkbModel" "'$model'"\n\tOption "XkbVariant" 
-",'$variant'"\n\tOption "XkbOptions" "grp:alt_shift_toggle"\nEndSection' > /mnt/etc/X11/xorg.conf.d/00-keyboard.conf
+echo -e 'Section "InputClass"\n\tIdentifier "system-keyboard"\n\tMatchIsKeyboard "on"\n\tOption "XkbLayout" "'$layout'"\n\tOption "XkbModel" "'$model'"\n\tOption "XkbVariant" ",'$variant'"\n\tOption "XkbOptions" "grp:alt_shift_toggle"\nEndSection' > /mnt/etc/X11/xorg.conf.d/00-keyboard.conf
 
 #Időzóna beállítás
 echo "# Időzóna beállítás..."
@@ -448,7 +447,7 @@ echo "%wheel ALL=(ALL) ALL" >> /mnt/etc/sudoers
 
 # Audió és videó driver telepítés
 echo "# Audió és videó driver telepítés..."
-pacstrap /mnt  mesa xorg-server xorg-apps xorg-xinit xorg-twm xterm xorg-drivers alsa-utils pulseaudio pulseaudio-alsa xf86-input-synaptics xf86-input-keyboard xf86-input-mouse xf86-input-libinput intel-ucode b43-fwcutter networkmanager nm-connection-editor network-manager-applet polkit-gnome gksu ttf-dejavu gnome-keyring xdg-user-dirs gvfs
+pacstrap /mnt  mesa xorg-server xorg-apps xorg-xinit xorg-twm xterm xorg-drivers alsa-utils pulseaudio pulseaudio-alsa xf86-input-synaptics xf86-input-keyboard xf86-input-mouse xf86-input-libinput intel-ucode b43-fwcutter networkmanager nm-connection-editor network-manager-applet polkit-gnome ttf-dejavu gnome-keyring xdg-user-dirs gvfs
 
 # virtualbox
 if [ "$vb" = "0" ]
@@ -506,7 +505,7 @@ fi
 # Hálózat engedélyezése
 arch_chroot "systemctl enable NetworkManager"
 echo "50"
-q
+
 
 # Pamac telepítése
 echo "[magyarcs_repo]" >> /mnt/etc/pacman.conf;echo "SigLevel = Optional TrustAll" >> /mnt/etc/pacman.conf;echo "Server = https://raw.github.com/magyarcslinux/magyarcs_repo/master/x86_64" >> /mnt/etc/pacman.conf
@@ -535,7 +534,7 @@ if [ "$grb" = "0" ]
 		echo "# Bootloader telepítés..."
 
 
-		if [ "$ans" = "Automatic Partitioning" ]
+		if [ "$ans" = "Automatikus particionálás" ]
 			then root_part=${dev}2
 		fi
 
