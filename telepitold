@@ -1,0 +1,629 @@
+#!/bin/sh
+
+# Kézi telepítés
+man_partition() {
+list=` lsblk -lno NAME,TYPE,SIZE,MOUNTPOINT | grep "disk" `
+
+zenity --info --title="$title" --text "Az alábbiakban a rendelkezésre álló meghajtók listája látható:\n\n$list" --height=300 --width=400
+
+lsblk -lno NAME,TYPE | grep 'disk' | awk '{print "/dev/" $1 " " $2}' | sort -u > devices.txt
+sed -i 's/\<disk\>//g' devices.txt
+devices=` awk '{print "FALSE " $0}' devices.txt `
+
+dev=$(zenity --list --title="$title" --radiolist --text "Válassza ki melyik  meghajtótra kíván telepíteni." --column Meghajtó --column Infó $devices)
+
+# Particionálás
+# A particionálást a gparted alkalmazással a felhasználó végzi
+zenity --question --title="$title" --height=40 --text "Kell-e particionálni a  $dev?\nVálassza a  \"yes\"-t és megnyílik a gparted és particionálja\nés formázza meg, mert ezt nem végzi el a telepítő.\nA telepítő ezután meg fogja kérdezni, hogy melyik particiót szeretné\nhasználni a  /boot, /home, /root és swap particiónak." --height=200 --width=500
+if [ "$?" = "0" ]
+	then gparted
+fi
+
+	# válasz  root particiót
+	root_part=$(zenity --list --title="$title" --text="Válasszon ki egy particiót a root(/) számára.\nFigyelem.\nMinden partició fel van sorolva.\nFigyelmesen válasszon." --radiolist --column ' ' --column Particiók $(sudo fdisk -l | grep dev | grep -v Disk | awk '{print $1}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+	#partició csatolása
+touch root_part.txt    
+echo $root_part >> root_part.txt
+	mount $root_part /mnt
+	# Swap partició?
+	zenity --question --title="$title" --text "Szeretne swap particiót?" --height=100 --width=200
+		if [ "$?" = "0" ]
+		then swap_part=$(zenity --list --title="$title" --text="Válasszon ki egy partíciót a swap számára.\nFigyelmeztetés, ez a lista minden rendelkezésre\nálló partíciót megjelenít minden rendelkezésre álló meghajtón." --radiolist --column ' ' --column Particiók $(sudo fdisk -l | grep dev | grep -v Disk | awk '{print $1}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+		mkswap $swap_part
+		swapon $swap_part
+		fi
+	# Swap fájl
+	zenity --question --title="$title" --text "Szeretne egy 1 GB-os swap fájlt létrehozni a root partición?\nHa már van swap partíciója vagy nem kíván swapot használni, válassza a \"No\" lehetőséget.\nEz a folyamat eltarthat egy ideig, ezért legyen türelemmel." --height=150 --width=400
+		if [ "$?" = "0" ]
+	 	then swapfile="yes"
+		(echo "# Swap fájl készítése..."
+		touch /mnt/swapfile
+		dd if=/dev/zero of=/mnt/swapfile bs=1M count=1024
+		chmod 600 /mnt/swapfile
+		mkswap /mnt/swapfile
+		swapon /mnt/swapfile) | zenity --progress --title="$title" --width=450 --pulsate --auto-close --no-cancel
+		fi
+
+	# Boot Partició?
+	zenity --question --title="$title" --text "Szeretnél külön boot partíciót használni?" --height=100 --width=300
+		if [ "$?" = "0" ]
+		then boot_part=$(zenity --list --radiolist --title="$title" --text="Válaszd ki melyik partició legyen a /boot." --column ' ' --column Partició $(sudo fdisk -l | grep dev | grep -v Disk | awk '{print $1}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+
+		mkdir -p /mnt/boot
+		mount $boot_part /mnt/boot
+
+		fi
+
+	# Home Partició?
+	zenity --question --title="$title" --text "Szeretnél külön /home particiót?" --height=100 --width=300
+		if [ "$?" = "0" ]
+		then home_part=$(zenity --list --radiolist --title="$title" --text="Válaszd ki melyik legyen  home particiód" --column ' ' --column Partitions $(sudo fdisk -l | grep dev | grep -v Disk | awk '{print $1}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+		# home csatolása
+		mkdir -p /mnt/home
+		mount $home_part /mnt/home
+		fi
+}
+# Automatikus particionálás
+auto_partition() {
+	list=` lsblk -lno NAME,TYPE,SIZE,MOUNTPOINT | grep "disk" `
+
+	zenity --info --title="$title" --text "Rendelkezésre álló meghajtók:\n\n$list" --height=150 --width=300
+
+	lsblk -lno NAME,TYPE | grep 'disk' | awk '{print "/dev/" $1 " " $2}' | sort -u > devices.txt
+	sed -i 's/\<disk\>//g' devices.txt
+	devices=` awk '{print "FALSE " $0}' devices.txt `
+
+	dev=$(zenity --list --title="$title" --radiolist --text "Válassza ki hová szeretne telepíteni." --column Drive --column Info $devices)
+
+	zenity --question --title="$title" --height=40 --text "Figyelem! Ez minden törölni fog a  $dev\!\nBiztos folytatni szeretnéd?\nHa igen akkor  \"Yes\"-t  ha megszakítod a telepítést\nakkor  \"No\"-t  válaszd." --height=100 --width=350
+        yn="$?"
+        touch root_part.txt
+        if [ "$SYSTEM" = "BIOS" ]
+	then echo {$dev}1 >> root_part.txt
+	else echo {$dev}2 >> root_part.txt
+        fi 
+	if [ "$yn" = "1" ]
+	then partition
+	fi
+
+	# RAM méretének megállapítása
+	ram=$(grep MemTotal /proc/meminfo | awk '{print $2/1024}' | sed 's/\..*//')
+	# Swap maximális mérete
+	num=4000
+
+	if [ "$ram" -gt "$num" ]
+		then swap_space=4096
+		else swap_space=$ram
+	fi
+	
+	uefi_swap=$(($swap_space + 513))
+
+
+	#BIOS vagy UEFI
+    if [ "$SYSTEM" = "BIOS" ]
+        then
+	       (echo "# BIOS partició létrehozása..."
+	        dd if=/dev/zero of=$dev bs=512 count=1
+	        Parted "mklabel msdos"
+	        Parted "mkpart primary ext4 1MiB 100%"
+	        Parted "set 1 boot on"
+	        mkfs.ext4 -F ${dev}1
+	        mount ${dev}1 /mnt
+		touch /mnt/swapfile
+		dd if=/dev/zero of=/mnt/swapfile bs=1M count=${swap_space}
+		chmod 600 /mnt/swapfile
+		mkswap /mnt/swapfile
+		swapon /mnt/swapfile
+		swapfile="yes") | zenity --progress --title="$title" --width=450 --pulsate --auto-close --no-cancel
+	    else
+            	(echo "# UEFI partició létrehozása..."
+            	dd if=/dev/zero of=$dev bs=512 count=1
+            	Parted "mklabel gpt"
+            	Parted "mkpart primary fat32 1MiB 513MiB"
+		Parted "mkpart primary ext4 513MiB 100%"
+		Parted "set 1 boot on"
+		mkfs.fat -F32 ${dev}1
+		mkfs.ext4 -F ${dev}2
+		mount ${dev}2 /mnt
+		mkdir -p /mnt/boot
+		mount ${dev}1 /mnt/boot
+		touch /mnt/swapfile
+		dd if=/dev/zero of=/mnt/swapfile bs=1M count=${swap_space}
+		chmod 600 /mnt/swapfile
+		mkswap /mnt/swapfile
+		swapon /mnt/swapfile
+		swapfile="yes") | zenity --progress --title="$title" --width=450 --pulsate --auto-close --no-cancel
+	fi
+			
+}
+
+# Particionálás
+partition() {
+	ans=$(zenity --list --title="$title" --radiolist --text "Szeretné használni az automatikus partícionálást?\nVagy szeretné partíciót létrehozni a lemezen magad?\nAutomatikus partícionálás teljesen törli az Ön által kiválasztott\n meghajtót és telepíti az Arch rendszert." --column '  '  --column Választ FALSE "Automatikus particionálás" FALSE "Kézi particionálás" --height=300 --width=400)
+	if [ "$ans" = "Automatikus particionálás" ]
+	then auto_partition
+	else
+	man_partition
+	fi
+
+}
+
+configure() {
+# Nyelv  kiválasztása
+locales=$(cat /etc/locale.gen | grep -v "#  " | sed 's/#//g' | sed 's/ UTF-8//g' | grep .UTF-8 | sort | awk '{ printf "FALSE ""\0"$0"\0" }')
+
+locale=$(zenity --list --title="$title" --radiolist --text "Válasza ki a nyelvet." --column Jelöl --column Nyelv $locales --height=350 --width=300)
+
+zenity --question --title="$title" --height=40 --text="szeretné megváltoztatni a billentyűzet modelljét?\nAlapértelmezés szerint a pc105." --height=150 --width=300
+mod="$?"
+
+if [ "$mod" = "0" ]
+then model=$(zenity --list --title="$title" --radiolist --text="Válassza ki a billentyűzetet" --column Jelöl --column Model $(localectl list-x11-keymap-models | awk '{ printf " FALSE ""\0"$0"\0" }'))
+fi
+
+layout=$(zenity --list --title="$title" --radiolist --text="Válasza ki a bilentyűzet kiosztását" --column Jelöl --column Elrendezés $(localectl list-x11-keymap-layouts | awk '{ printf " FALSE ""\0"$0"\0" }'))
+
+zenity --question --title="$title" --height=40 --text="Szeretné megváltoztatni billentyűzetváltozatát?" --height=100 --width=300
+vary="$?"
+
+if [ "$vary" = "0" ]
+then variant=$(zenity --list --title="$title" --radiolist --text="Válassza ki a kívánt változatot" --column Jelöl --column Változat $(localectl list-x11-keymap-variants | awk '{ printf " FALSE ""\0"$0"\0" }'))
+fi
+
+setxkbmap $layout
+
+if [ "$model" = "0" ] 
+then setxkbmap -model $model 
+fi
+
+if [ "$vary" = "0" ] 
+then setxkbmap -variant $variant
+fi
+# Időzóna lekérése
+zones=$(cat /usr/share/zoneinfo/zone.tab | awk '{print $3}' | grep "/" | sed "s/\/.*//g" | sort -ud | sort | awk '{ printf " FALSE ""\0"$0"\0" }')
+
+zone=$(zenity --list --title="$title" --radiolist --text "Válaszon időzóna földrészt." --column Jelöl --column Zóna $zones --height=350 --width=300)
+
+subzones=$(cat /usr/share/zoneinfo/zone.tab | awk '{print $3}' | grep "$zone/" | sed "s/$zone\///g" | sort -ud | sort | awk '{ printf " FALSE ""\0"$0"\0" }')
+
+subzone=$(zenity --list --title="$title" --radiolist --text "Válasz zónát" --column Jelöl --column Zóna $subzones --height=350 --width=300)
+
+# Idő beállítás
+clock=$(zenity --list --title="$title" --radiolist --text "UTC vagy helyi idő használata.\nUTC az ajánlott." --column Jelöl --column Idő TRUE utc FALSE localtime)
+
+# Beállítás hostnév, felhasználónév, root jelszó, és a felhasználó jelszó
+hname=$(zenity --entry --title="$title" --text "Írja be a rendszer nevét.\nCsak kisbetüket használj." --entry-text "magyarcslinux" --width=300)
+username=$(zenity --entry --title="$title" --text "Írja be a felhasználónevet.\nCsak kisbetük az elfogadottak." --entry-text "user" --width=300)
+}
+
+# Virtuálbox
+vbox() {
+graphics=$(lspci | grep -i "vga" | sed 's/.*://' | sed 's/(.*//' | sed 's/^[ \t]*//')
+if [[ $(echo $graphics | grep -i 'virtualbox') != "" ]]
+	then zenity --question --title="$title" --height=40 --text "A telepítő észlelte, hogy Virtualbox-ban fut.\nSzeretné telepíteni a Virtualbox segéd-alkalmazásait?" --height=100 --width=400
+vb="$?"
+fi
+}
+
+# Nvidia driver
+nvidia() {
+graphics=$(lspci | grep -i "vga" | sed 's/.*://' | sed 's/(.*//' | sed 's/^[ \t]*//')
+card=$(lspci -k | grep -A 2 -E "(VGA|3D)")
+if [[ $(echo $card | grep -i 'nvidia') != "" ]]
+	then zenity --question --title="$title" --height=40 --text "A telepítő észlelte, hogy NVIDIA grafikus kártyát használ.\nSzeretné telepíteni a megfelelő driver-t?" --height=100 --width=400
+		if [ "$?" = "0" ]
+			then video=$(zenity --list --height=400 --title="$title" --text "Meg kell tudnia, hogy az NVIDIA grafikus kártya melyik modelljét használja.\nAz NVIDIA 400 sorozat és újabb esetén telepítse az nvidia és az nvidia-libgl.\n\nA 8000-9000 vagy 100-300 sorozat esetén az nvidia-340xx és nvidia-340xx-libgl.\n\nJelenlegi kártyád:\n$card\n\nVálasz az NVIDIA drivere-ek közül amelyiket telepíteni akarod." --checklist --column Jelöl --column Driver FALSE "nvidia nvidia-utils nvidia-settings lib32-libvdpau lib32-libva lib32-nvidia-utils lib32-libxtst lib32-libxrandr lib32-libpulse lib32-gdk-pixbuf2 lib32-gtk2 lib32-openal" FALSE "nvidia-340xx nvidia-340xx-utils nvidia-settings lib32-libvdpau lib32-libva lib32-nvidia-utils lib32-libxtst lib32-libxrandr lib32-libpulse lib32-gdk-pixbuf2 lib32-gtk2 lib32-openal" --height=350 --width=550)
+			else video="mesa xf86-video-nouveau"
+		fi
+	else video="mesa xf86-video-nouveau"
+fi
+}
+
+
+
+# kernel
+kernel() {
+kernel=$(zenity --list --title="$title" --height=550 --text "Választhat több kernel-ből.\n\nLegfrisebb a linux kernel.\nEbben találjuk a legtöbb hardver támogatást.\nDe ebben található a legtöbb hiba.\n\nA linux-lts kernel stabilitásra épül.\nRégebbi kernelre épül, és nem tartalmazza az újításokat.\n\nA linux-hardened kernel biztonságra épül\nTartalmaz Grsecurity Patchset és PaX a biztonság érdekében.\n\nA linux-zen kernel fejlesztői változat.\Nem ajánlott mindenapi használatra.\n\nVálaszon melyik kernel-t szeretné telepíteni." --radiolist --column Jelöl --column "Kernel" FALSE linux FALSE linux-lts FALSE linux-hardened FALSE linux-zen)
+}
+
+# root jelszó
+root_password() {
+rtpasswd=$(zenity --entry --title="$title" --text "Írd be a használni kívánt root jelszót." --hide-text)
+rtpasswd2=$(zenity --entry --title="$title" --text "Írd be újra a root jelszót." --hide-text)
+	if [ "$rtpasswd" != "$rtpasswd2" ]
+		then zenity --error --title="$title" --text "Jelszavak nem egyeznek, próbálja újra." --height=100  --width=300
+		root_password
+	fi
+}
+
+# felhasználó jelszó
+user_password() {
+userpasswd=$(zenity --entry --title="$title" --text "Ad meg a $username jelszavát." --hide-text)
+userpasswd2=$(zenity --entry --title="$title" --text "Ismételd meg a $username jelszavát." --hide-text)
+	if [ "$userpasswd" != "$userpasswd2" ]
+		then zenity --error --title="$title" --text "Jelszavak nem egyeznek, próbálja újra" --height=100 --width=300
+		user_password
+	fi
+}
+
+# Shell választás
+changeshell() {
+shell=$(zenity --list --title="$title" --radiolist --text "Milyen sell-t szeretne használni?" --column Jelöl --column Választ FALSE bash FALSE zsh FALSE fish --height=220 --width=300)
+}
+
+# Nyomtató
+cups() {
+zenity --question --title="$title" --height=40 --text "Szeretne nyomtató támogatást telepíteni?" --height=100 --width=300
+cp="$?"
+}
+
+# Asztali felület
+desktop() {
+desktops=$(zenity --list --height=550 --width=450 --title="$title" --radiolist --text="Válasz asztali felületet." --column '   ' --column Asztal FALSE "gnome" FALSE "gnome gnome-extra" FALSE "plasma" FALSE "plasma kde-applications" FALSE "xfce4" FALSE "xfce4 xfce4-goodies" FALSE "lxde" FALSE "lxqt" FALSE "mate" FALSE "mate mate-extra" FALSE "budgie-desktop" FALSE "cinnamon" FALSE "deepin" FALSE "enlightenment" FALSE "jwm" FALSE "i3-wm i3lock i3status" FALSE "openbox tint2 openbox-themes" FALSE "Egyéb nem ajánlott")
+if [ "$desktops" = "Egyéb nem ajánlott" ]
+then zenity --list --title="$title" --text="Nézd meg ezeket. A következőben kiválaszthatod." --column Nézet --width=450 --height=550 "$(pacman -Ss window manager)"
+wm=$(zenity --list --radiolist --column Jelöl --column Desktop --height=550 --width=450 --title="$title" --radiolist --text="Válasz tetszés szerint." $(pacman -Ssq window manager | awk '{ printf " FALSE ""\0"$0"\0" }'))
+fi
+}
+
+# Inditásvezérlő
+displaymanager() {
+dm=$(zenity --list --title="$title" --radiolist --text "Milyen inditásvezérlőt szeretnél?" --column Jelöl --column Megjelenítő FALSE "lightdm" FALSE "lxdm" FALSE "sddm" FALSE "gdm" FALSE "Alapértelmezett" --height=250 --width=300)
+}
+
+# Pamac
+pamacaur() {
+zenity --question --title="$title" --height=40 --text="Szeretné telepíteni a pamac-ot?\nA pamac egy GUI telepítő segédprogram." --height=120 --width=350
+pa="$?"
+}
+
+# internetes alkalmazások
+internet_apps() {
+zenity --list --title="$title" --text "Válasza ki mit szeretne telepíteni" --checklist --column Jelöl --column Alkalmazás FALSE "chromium " FALSE "midori " FALSE "qupzilla " FALSE "netsurf " FALSE "filezilla " FALSE "opera " FALSE "evolution " FALSE "geary " FALSE "thunderbird " FALSE "transmission-gtk " FALSE "transmission-qt " FALSE "qbittorrent " FALSE "hexchat " --height=400 --width=400 > int2.txt
+sed -i -e 's/[|]//g' int2.txt
+}
+
+# media alkalmazás-lista
+media_apps() {
+zenity --list --title="$title" --text "Válasz a telepíteni kívánt média alkalmazásokból" --checklist --column Jelöl --column Alkalmazás FALSE "kodi " FALSE "gimp " FALSE "vlc " FALSE "phonon-qt4-vlc " FALSE "totem " FALSE "parole " FALSE "audacious " FALSE "clementine " FALSE "gthumb " FALSE "shotwell " FALSE "ristretto " FALSE "gpicview " FALSE "brasero " FALSE "audacity " FALSE "simplescreenrecorder " FALSE "xfburn " FALSE "kdenlive " --height=400 --width=400 > med2.txt
+sed -i -e 's/[|]//g' med2.txt
+}
+
+# Irodai alkalmazások
+office_apps() {
+zenity --list --title="$title" --text "Válasz a telepíteni kívánt irodai alkalmazásokból" --checklist --column Jelöl --column Alkalmazás FALSE "calligra " FALSE "abiword " FALSE "gnumeric " FALSE "pdfmod " FALSE "evince " FALSE "epdfview " FALSE "calibre " FALSE "fbreader " --height=400 --width=400 > off2.txt
+sed -i -e 's/[|]//g' off2.txt
+}
+
+# Hasznos alkalmazások
+utility_apps() {
+zenity --list --title="$title" --text "Válasz a listából" --checklist --column Választ --column Alkalmazás FALSE "htop " FALSE "terminator " FALSE "gnome-disk-utility " FALSE "gparted " FALSE "synapse " FALSE "virtualbox " FALSE "gufw " FALSE "redshift " FALSE "leafpad " FALSE "geany " FALSE "parcellite " FALSE "grsync " FALSE "guake " FALSE "ntfs-3g " FALSE "btrfs-progs " FALSE "gptfdisk " --height=400 --width=400 > utils.txt
+sed -i -e 's/[|]//g' utils.txt
+}
+
+# Játékosoknak
+jatek_apps() {
+zenity --list --title="$title" --text "Válasz a listából" --checklist --column Választ --column Alkalmazás FALSE "steam " FALSE "playonlinux " FALSE "lutris " --height=400 --width=400 > jatek.txt
+sed -i -e 's/[|]//g' jatek.txt
+}
+
+# Kiegészitők
+kiegeszit_apps() {
+zenity --list --title="$title" --text "Válasz a listából" --checklist --column Választ --column Alkalmazás FALSE "paper-gtk-theme-git " FALSE "numix-gtk-theme " FALSE "faenza-icon-theme " FALSE "arc-icon-theme " FALSE "papirus-icon-theme " FALSE "ttf-ubuntu-font-family " FALSE "ttf-inconsolata "  --height=400 --width=400 > graf.txt
+sed -i -e 's/[|]//g' graf.txt
+}
+
+# Libreoffice
+sudo pacman -Syy
+libreoffice() {
+zenity --question --title="$title" --text="Szeretnéd telepíteni a Libreoffice-t?" --height=100 --width=300
+lbr="$?"
+if [ "$lbr" = "0" ]
+then lover=$(zenity --list --radiolist --text="Melyik változatot szeretnéd telepíteni?" --column Jelöl --column Verzió FALSE "fresh" FALSE "still")
+lolang=$(zenity --list --radiolist --column Jelöl --column Nyelicsomag $(sudo pacman -Ssq libreoffice-$lover lang | awk '{ printf " FALSE ""\0"$0"\0" }'))
+fi
+}
+
+firefox() {
+zenity --question --title="$title" --text="Szeretnéd telepíteni a Firefox böbgészőt?" --height=100 --width=300
+frf="$?"
+if [ "$frf" = "0" ]
+then fflang=$(zenity --list --radiolist --column Jelöl --column Nyelvicsomag $(sudo pacman -Ssq firefox lang  | awk '{ printf " FALSE ""\0"$0"\0" }'))
+fi
+}
+
+# További alkalmazások
+installapps() {
+extra=$(zenity --list --height=300 --title="$title" --radiolist --text "Szeretnél további alkalmazásokat telepíteni?\nVálász a kategóriákból és megjelenik az alkalmazáslista.\nA választás után vissza fog a telepítő ide lépni.\nHa befejezted a válogatást válaszd a 'Befejezés'-t." --column Jelöl --column Kategóriák FALSE Internet FALSE Média FALSE Irodai FALSE Hasznos FALSE Játékosoknak FALSE Kiegészítők FALSE Befejezés  --height=400 --width=450)
+
+if [ "$extra" = "Internet" ]
+	then internet_apps;installapps
+elif [ "$extra" = "Média" ]
+	then media_apps;installapps
+elif [ "$extra" = "Irodai" ]
+	then office_apps;installapps
+elif [ "$extra" = "Hasznos" ]
+	then utility_apps;installapps
+elif [ "$extra" = "Játékosoknak" ]
+	then jatek_apps;installapps
+elif [ "$extra" = "Kiegészítők" ]
+	then kiegeszit_apps;installapps
+fi
+
+}
+
+# bootloader?
+bootloader() {
+lsblk -lno NAME,TYPE | grep 'disk' | awk '{print "/dev/" $1 " " $2}' | sort -u > devices.txt
+sed -i 's/\<disk\>//g' devices.txt
+devices=` awk '{print "FALSE " $0}' devices.txt `
+
+grub=$(zenity --question --title="$title" --text "Szeretné telepíteni a bootloadert?\nA válasz erre általában igen,\nhacsak nem kettős indításod van\nés tervezed, hogy másik rendszer kezelje\n a rendszerindítási folyamatot." --height=200 --width=450)
+grb="$?"
+if [ "$grb" = "0" ]
+	then grub_device=$(zenity --list --title="$title" --text "Hová szeretnéd telepíteni a bootloder-t?" --radiolist --column Jelöl --column Meghajtó $devices)
+fi
+}
+
+# Telepítés
+installing() {
+zenity --question --title="$title" --text "Kattintson a \"Yes\" gombra a telepítés megkezdéséhez.\nA \"No\"-ra a telepítés megszakításához.\nLegfrisebb csomagok lesznek letültve,\nezért ez eltarthat egy darabig." --height=150 --width=450
+
+if [ "$?" = "1" ]
+	then exit
+else (
+# pacman tükrök
+echo "# Tükörlista készítése..."
+reflector --verbose -l 50 -p http --sort rate --save /etc/pacman.d/mirrorlist
+
+# Csomaglista frissítése
+echo "# Csomaglista frissítése..."
+sudo pacman -Syy
+arch_chroot "sudo pacman -Syy"
+
+#Telepítés base
+echo "#Telepítés base..."
+if [ "$kernel" = "linux" ]
+	then pacstrap /mnt base base-devel
+elif [ "$kernel" = "linux-lts" ]
+	then pacstrap /mnt $(sudo pacman -Sqg base | sed 's/^\(linux\)$/\1-lts/') base-devel
+elif [ "$kernel" = "linux-hardened" ]
+	then pacstrap /mnt $(sudo pacman -Sqg base | sed 's/^\(linux\)$/\1-hardened/') base-devel
+elif [ "$kernel" = "linux-zen" ]
+	then pacstrap /mnt $(sudo pacman -Sqg base | sed 's/^\(linux\)$/\1-zen/') base-devel
+
+fi
+
+# fstab elkészítése
+echo "# fstab elkészítése..."
+genfstab -p /mnt >> /mnt/etc/fstab
+if grep -q "/mnt/swapfile" "/mnt/etc/fstab"; then
+sed -i '/swapfile/d' /mnt/etc/fstab
+echo "/swapfile		none	swap	defaults	0	0" >> /mnt/etc/fstab
+fi
+
+#root jelszó
+echo "# Root jelszó beállítás..."
+touch .passwd
+echo -e "$rtpasswd\n$rtpasswd2" > .passwd
+arch_chroot "passwd root" < .passwd >/dev/null
+rm .passwd
+
+#Felhasználó hozzáadása
+echo "# Felhasználó hozzáadása..."
+arch_chroot "useradd -m -g users -G adm,lp,wheel,power,audio,video -s /bin/bash $username"
+touch .passwd
+echo -e "$userpasswd\n$userpasswd2" > .passwd
+arch_chroot "passwd $username" < .passwd >/dev/null
+rm .passwd
+
+#Nyelv beállítása
+echo "# Nyelv beállítása..."
+echo "LANG=\"${locale}\"" > /mnt/etc/locale.conf
+echo "${locale} UTF-8" > /mnt/etc/locale.gen
+arch_chroot "locale-gen"
+export LANG=${locale}
+
+#Bilentyűzet kiosztás
+mkdir -p /mnt/etc/X11/xorg.conf.d/
+echo -e 'Section "InputClass"\n\tIdentifier "system-keyboard"\n\tMatchIsKeyboard "on"\n\tOption "XkbLayout" "'$layout'"\n\tOption "XkbModel" "'$model'"\n\tOption "XkbVariant" ",'$variant'"\n\tOption "XkbOptions" "grp:alt_shift_toggle"\nEndSection' > /mnt/etc/X11/xorg.conf.d/00-keyboard.conf
+
+#Időzóna beállítás
+echo "# Időzóna beállítás..."
+arch_chroot "rm /etc/localtime"
+arch_chroot "ln -s /usr/share/zoneinfo/${zone}/${subzone} /etc/localtime"
+
+#Rendszeridó beállítás
+echo "# Rendszeridó beállítás..."
+arch_chroot "hwclock --systohc --$clock"
+
+#hostnév beállítás
+echo "# hostnév beállítás..."
+arch_chroot "echo $hname > /etc/hostname"
+
+# sudo beállítás
+echo "%wheel ALL=(ALL) ALL" >> /mnt/etc/sudoers
+
+
+# Audió és videó driver telepítés
+echo "# Audió és videó driver telepítés..."
+pacstrap /mnt  mesa xorg-server xorg-apps xorg-xinit xorg-twm xterm xorg-drivers alsa-utils pulseaudio pulseaudio-alsa xf86-input-synaptics xf86-input-keyboard xf86-input-mouse xf86-input-libinput intel-ucode b43-fwcutter networkmanager nm-connection-editor network-manager-applet polkit-gnome ttf-dejavu gnome-keyring xdg-user-dirs gvfs
+
+# virtualbox
+if [ "$vb" = "0" ]
+	then
+	if [ "$kernel" = "linux" ]
+		then pacstrap /mnt virtualbox-guest-modules-arch virtualbox-guest-utils
+        	echo -e "vboxguest\nvboxsf\nvboxvideo" > /mnt/etc/modules-load.d/virtualbox.conf
+	elif [ "$kernel" = "linux-lts" ]
+		then pacstrap /mnt virtualbox-guest-dkms virtualbox-guest-utils linux-lts-headers
+		echo -e "vboxguest\nvboxsf\nvboxvideo" > /mnt/etc/modules-load.d/virtualbox.conf
+	elif [ "$kernel" = "linux-hardened" ]
+		then pacstrap /mnt virtualbox-guest-dkms virtualbox-guest-utils linux-hardened-headers
+		echo -e "vboxguest\nvboxsf\nvboxvideo" > /mnt/etc/modules-load.d/virtualbox.conf
+	elif [ "$kernel" = "linux-zen" ]
+		then pacstrap /mnt virtualbox-guest-dkms virtualbox-guest-utils linux-zen-headers
+		echo -e "vboxguest\nvboxsf\nvboxvideo" > /mnt/etc/modules-load.d/virtualbox.conf
+	fi
+fi
+echo "25"
+
+# Asztali környezet telepítés
+if [ "$desktops" = "Look at more window managers" ]
+then pacstrap /mnt $wm
+else pacstrap /mnt $desktops
+fi
+
+# Nyomtatók
+if [ "$cp" = "0" ]
+	then pacstrap /mnt ghostscript gsfonts system-config-printer gtk3-print-backends cups cups-pdf cups-filters
+arch_chroot "systemctl enable org.cups.cupsd.service"
+fi
+
+# Asztali környezet indító
+if [ "$dm"  = "Alapértelmezett" ]
+then if [ "$desktop" = "gnome" ]
+	then arch_chroot "systemctl enable gdm.service"
+	elif [ "$desktop" = "gnome gnome-extra" ]
+	then arch_chroot "systemctl enable gdm.service"
+	elif [ "$desktop" = "budgie-desktop" ]
+	then pacstrap /mnt lightdm lightdm-gtk-greeter-settings lightdm-gtk-greeter gnome-control-center gnome-backgrounds;arch_chroot "systemctl enable lightdm.service"
+	elif [ "$desktop" = "lxde" ]
+	then pacstrap /mnt lxdm-gtk3;arch_chroot "systemctl enable lxdm.service"
+	elif [ "$desktop" = "plasma" ]
+	then pacstrap /mnt sddm;arch_chroot "systemctl enable sddm.service"
+	elif [ "$desktop" = "plasma kde-applications" ]
+	then pacstrap /mnt sddm;arch_chroot "systemctl enable sddm.service"
+	else pacstrap /mnt lightdm lightdm-gtk-greeter-settings lightdm-gtk-greeter
+	arch_chroot "systemctl enable lightdm.service"
+	fi
+elif [ "$dm" = "lightdm" ]
+then pacstrap /mnt lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings;arch_chroot "systemctl enable lightdm.service"
+else pacstrap /mnt $dm;arch_chroot "systemctl enable $dm.service"
+fi
+
+# Hálózat engedélyezése
+arch_chroot "systemctl enable NetworkManager"
+echo "50"
+
+
+# Pamac telepítése
+echo "[magyarcs_repo]" >> /mnt/etc/pacman.conf;echo "SigLevel = Optional TrustAll" >> /mnt/etc/pacman.conf;echo "Server = https://raw.github.com/magyarcslinux/magyarcs_repo/master/x86_64" >> /mnt/etc/pacman.conf
+arch_chroot "pacman -Syy"
+arch_chroot "sudo pacman -S --noconfirm pamac-aur"
+
+# Multilib
+echo "" >> /mnt/etc/pacman.conf;echo "[multilib]" >> /mnt/etc/pacman.conf;echo "Include = /etc/pacman.d/mirrorlist" >> /mnt/etc/pacman.conf
+arch_chroot "pacman -Syy"
+
+echo "75"
+# shell
+if [ "$shell" = "zsh" ]
+then arch_chroot "sudo pacman -S --noconfirm zsh zsh-syntax-highlighting zsh-completions grml-zsh-config;chsh -s /usr/bin/zsh $username"
+else arch_chroot "sudo pacman -S --noconfirm $shell;chsh -s /usr/bin/$shell"
+fi
+
+# Bootloader telepítés
+if [ "$grb" = "0" ]
+	then if [ "$SYSTEM" = 'BIOS' ]
+		then echo "# Installing Bootloader..."
+		pacstrap /mnt grub
+		arch_chroot "grub-install --target=i386-pc $grub_device"
+		arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
+	else
+		echo "# Bootloader telepítés..."
+
+
+		if [ "$ans" = "Automatikus particionálás" ]
+			then root_part=${dev}2
+		fi
+
+		[[ $(echo $root_part | grep "/dev/mapper/") != "" ]] && bl_root=$root_part \
+		|| bl_root=$"PARTUUID="$(blkid -s PARTUUID ${root_part} | sed 's/.*=//g' | sed 's/"//g')
+
+		arch_chroot "bootctl --path=/boot install"
+		echo -e "default  Arch\ntimeout  10" > /mnt/boot/loader/loader.conf
+		[[ -e /mnt/boot/initramfs-linux.img ]] && echo -e "title\tArch Linux\nlinux\t/vmlinuz-linux\ninitrd\t/initramfs-linux.img\noptions\troot=${bl_root} rw" > /mnt/boot/loader/entries/Arch.conf
+		[[ -e /mnt/boot/initramfs-linux-lts.img ]] && echo -e "title\tArchLinux LTS\nlinux\t/vmlinuz-linux-lts\ninitrd\t/initramfs-linux-lts.img\noptions\troot=${bl_root} rw" > /mnt/boot/loader/entries/Arch-lts.conf
+		[[ -e /mnt/boot/initramfs-linux-hardened.img ]] && echo -e "title\tArch Linux hardened\nlinux\t/vmlinuz-linux-hardened\ninitrd\t/initramfs-linux-hardened.img\noptions\troot=${bl_root} rw" > /mnt/boot/loader/entries/Arch-hardened.conf
+		[[ -e /mnt/boot/initramfs-linux-zen.img ]] && echo -e "title\tArch Linux Zen\nlinux\t/vmlinuz-linux-zen\ninitrd\t/initramfs-linux-zen.img\noptions\troot=${bl_root} rw" > /mnt/boot/loader/entries/Arch-zen.conf
+		fi
+fi
+
+# mkinit inditása
+echo "# Running mkinitcpio..."
+arch_chroot "mkinitcpio -p $kernel"
+
+
+# Kiválasztott szoftverek telepítése
+echo "# Kiválasztott szoftverek telepítése..."
+# Listák megnyitása
+int=` cat int2.txt `
+med=` cat med2.txt `
+off=` cat off2.txt `
+utils=` cat utils.txt `
+jatek=` cat jatek.txt `
+graf=` cat graf.txt `
+
+# telepíti
+arch_chroot "sudo pacman -Syy"
+arch_chroot "sudo pacman -S --noconfirm $int $med $off $utils $jatek $graf"
+if [ "$lbr" = "0" ]
+then arch_chroot "sudo pacman -S --noconfirm libreoffice-$lover $lolang"
+fi
+if [ "$frf" = "0" ]
+then arch_chroot "sudo pacman -S --noconfirm firefox  $fflang"
+fi
+# Particiók leválasztása
+umount -R /mnt
+echo "100"
+echo "# Telepítés befejeződött!"
+) | zenity --progress --percentage=0 --title="$title" --width=450 --no-cancel
+fi
+}
+
+# Futatás
+# Rendszer-ellenőrzés
+if [[ -d "/sys/firmware/efi/" ]]; then
+      SYSTEM="UEFI"
+      else
+      SYSTEM="BIOS"
+fi
+
+
+# A változók beállítása
+title="Krive001 telepítő 1.00 $SYSTEM"
+
+# AIS
+arch_chroot() {
+    arch-chroot /mnt /bin/bash -c "${1}"
+}
+
+# Mit particionál
+Parted() {
+	parted --script $dev "$1"
+}
+# A felhasználó üdvözlése
+zenity --question --title="$title" --text "Üdvözöljük.\nEz egy Arch Linux telepítő.\nA telepítő végig fogja vezetni a telepítés folyamatán.\nA telepítés megkezdéséhez válassza a \"Yes\"-t,\nha nem kíván telepíteni akkor \"No\"-t." --height=150 --width=400
+
+if [ "$?" = "1" ]
+	then exit
+fi
+
+partition
+configure
+root_password
+user_password
+changeshell
+kernel
+vbox
+nvidia
+#pamacaur
+cups
+displaymanager
+desktop
+firefox
+libreoffice
+installapps
+bootloader
+installing
