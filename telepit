@@ -210,6 +210,7 @@ kswpnofile() {
                     then mkdir -p /mnt/var
                     mount $var_part /mnt/var
                 fi
+                egyeb_csatolas
 
 
 
@@ -388,6 +389,7 @@ kswpf() {
                         then mkdir -p /mnt/var
                         mount $var_part /mnt/var
                     fi
+                    egyeb_csatolas
                         
 
                 }
@@ -563,6 +565,8 @@ kswno() {
                         then mkdir -p /mnt/var
                         mount $var_part /mnt/var
                     fi
+                    egyeb_csatolas
+
 
                 }
 
@@ -665,16 +669,106 @@ auto_partition() {
 		swapon /mnt/swapfile
 		swapfile="yes") | zenity --progress --title="$title" --width=450 --pulsate --auto-close --no-cancel
 	fi
-	# Egyéb particó csatolása
-	zenity --question --title="$title" --text "Szeretnél külön csatolni egyéb patriciót particiót?" --height=100 --width=300
-		if [ "$?" = "0" ]
-		then mnt_part=$(zenity --list --radiolist --title="$title" --text="Válaszd ki melyik particiót szeretnéd felcsatolni?" --column ' ' --column Partició $(sudo fdisk -l | grep dev | grep -v Disk | awk '{print $1}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
-		# home csatolása
-		mkdir -p /mnt/mnt
-		mount $mnt_part /mnt/mnt
-		fi
+    egyeb_csatolas
+	
 			
 }
+
+
+# Egyeb csatolások
+egyeb_csatolas() {
+
+    # Egyéb particó csatolása
+    zenity --question --title="$title" --text "Szeretnél külön csatolni egyéb patriciót?" --height=100 --width=300
+        if [ "$?" = "0" ]
+        then 
+            csatolásom
+        fi
+
+}
+
+
+csatolasom() {
+
+    IFS='|'
+
+        function ellenor {
+
+                disk1szamlal=0
+                disk2szamlal=0
+                disk3szamlal=0
+                nincstolt=0
+
+                disk1=$1
+                disk2=$2
+                disk3=$3
+
+                for k in { $disk1 $disk2 $disk3 }
+                do
+                        if [ "$k" == " " ]
+                                then  ((nincstolt++))
+                                #echo $nincstolt
+                        fi
+                done
+
+
+
+                # Ha üres valamelyik partició...
+                if [ "$nincstolt" -gt "0" ]
+                        then zenity --error --title="$title" --text "Minden mező kitöltése kötelező!!!\nHa nem akarsz az adott helyre csatolni, válaszd a Nincs lehetőséget" --height=100  --width=300 
+                        csatolasom
+                        return 1
+                        fi 
+
+                    # Hanyszor szerepel a partició
+                for i in { $disk1 $disk2 $disk3 }
+                do
+                        if [ "$i" == "$disk1" -a "$i" != "Nincs" ]
+                                then ((disk1szamlal++))
+                        
+                        elif [ "$i" == "$disk2" -a "$i" != "Nincs" ]
+                                then ((disk2szamlal++))
+                        
+                        elif [ "$i" == "$disk3" -a "$i" != "Nincs" ]
+                                then ((disk3szamlal++))
+                       
+                        fi
+                        
+               done
+
+               if [ "$disk1szamlal" -gt "1" -o "$disk2szamlal" -gt "1" -o "$disk3szamlal" -gt "1" ]
+                        then 
+                            zenity --error --title="$title" --text "Többször választottad ugyanazt a particiót" --height=100  --width=300
+                            csatolasom
+                            return 1
+                    fi
+
+                    # disk1
+                    if [ "$disk1" != "Nincs" -o "$disk1" != " " ]
+                        then mkdir -p /mnt/disk_1
+                        mount $disk1 /mnt/disk_1
+                    # disk 2
+                    elif [ "$disk2" != "Nincs" -o "$disk2" != " "]
+                        then mkdir -p /mnt/disk_2
+                        mount $disk2 /mnt/disk_2
+                    # disk3
+                    elif [ "$disk3" != "Nincs" -o "$disk3" != " "]
+                        then mkdir -p /mnt/disk_3
+                        mount $disk3 /mnt/disk_3
+                    fi
+}    
+
+    echo "Nincs" > csatol.txt
+    sudo fdisk -l | grep dev | grep -v Disk | awk '{print $1}' >> csatol.txt
+    tr -s '\n' '|' < csatol.txt > csatolki.txt
+    mylist=` cat csatolki.txt `
+    ellenor $(zenity --forms --text "Egyéb meghajtók csatolása." --add-combo="Csatolási pont (/mnt/disk1)" --combo-values="${mylist::-1}" \
+                --add-combo="Csatolási pont (/mnt/disk2)" --combo-values=$"${mylist::-1}" --add-combo="Csatolási pont (/mnt/disk3)" --combo-values="${mylist::-1}")
+  
+}
+
+
+
 
 # Particionálás
 partition() {
@@ -688,6 +782,8 @@ partition() {
 }
 
 configure() {
+
+    IFS=$oldifs
 # Nyelv  kiválasztása
 locales=$(cat /etc/locale.gen | grep -v "#  " | sed 's/#//g' | sed 's/ UTF-8//g' | grep .UTF-8 | sort | awk '{ printf "FALSE ""\0"$0"\0" }')
 
@@ -819,6 +915,9 @@ rootpass $(zenity --forms --text "Ad meg a $username jelszavát."  --add-passwor
 
 # Shell választás
 changeshell() {
+
+IFS=$oldifs
+
 shell=$(zenity --list --title="$title" --radiolist --text "Milyen sell-t szeretne használni?" --column Jelöl --column Választ FALSE bash FALSE zsh FALSE fish --height=220 --width=300)
 }
 
@@ -1090,7 +1189,7 @@ echo "50"
 # Multilib
 echo "" >> /mnt/etc/pacman.conf;echo "[multilib]" >> /mnt/etc/pacman.conf;echo "Include = /etc/pacman.d/mirrorlist" >> /mnt/etc/pacman.conf
 arch_chroot "pacman -Syy"
-cp /mnt/etc/pacman.conf /mnt/etcpacman.mentes 
+cp /mnt/etc/pacman.conf /mnt/etc/pacman.mentes 
 
 echo "75"
 
@@ -1099,10 +1198,6 @@ echo "75"
 echo "[magyarcs_repo]" >> /mnt/etc/pacman.conf;echo "SigLevel = Optional TrustAll" >> /mnt/etc/pacman.conf;echo "Server = https://raw.github.com/magyarcslinux/magyarcs_repo/master/x86_64" >> /mnt/etc/pacman.conf
 arch_chroot "pacman -Syy"
 arch_chroot "sudo pacman -S --noconfirm pamac-aur yay-bin"
-
-# Multilib
-echo "" >> /mnt/etc/pacman.conf;echo "[multilib]" >> /mnt/etc/pacman.conf;echo "Include = /etc/pacman.d/mirrorlist" >> /mnt/etc/pacman.conf
-arch_chroot "pacman -Syy"
 
 echo "75"
 # shell
@@ -1163,7 +1258,7 @@ if [ "$frf" = "0" ]
 then arch_chroot "sudo pacman -S --noconfirm firefox  $fflang"
 fi
 # Particiók leválasztása és pacman másolás
-cp /mnt/etc/pacman.mentes /mnt/etcpacman.conf
+cp /mnt/etc/pacman.mentes /mnt/etc/pacman.conf
 rm /mnt/etc/pacman.mentes
 
 umount -R /mnt
@@ -1185,6 +1280,8 @@ fi
 
 # A változók beállítása
 title="Krive001 telepítő 2.0 $SYSTEM"
+
+oldifs=$IFS
 
 # AIS
 arch_chroot() {
