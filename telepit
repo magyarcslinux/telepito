@@ -929,7 +929,7 @@ cp="$?"
 
 # Asztali felület
 desktop() {
-desktops=$(zenity --list --height=550 --width=450 --title="$title" --radiolist --text="Válasz asztali felületet." --column '   ' --column Asztal FALSE "gnome" FALSE "gnome gnome-extra" FALSE "plasma" FALSE "plasma kde-applications" FALSE "xfce4" FALSE "xfce4 xfce4-goodies" FALSE "lxde" FALSE "lxqt" FALSE "mate" FALSE "mate mate-extra" FALSE "budgie-desktop" FALSE "cinnamon" FALSE "deepin" FALSE "enlightenment" FALSE "jwm" FALSE "i3-wm i3lock i3status" FALSE "openbox tint2 openbox-themes" FALSE "Egyéb nem ajánlott")
+desktops=$(zenity --list --height=550 --width=450 --title="$title" --radiolist --text="Válasz asztali felületet." --column '   ' --column Asztal FALSE "gnome" FALSE "gnome gnome-extra" FALSE "plasma" FALSE "plasma kde-applications" FALSE "xfce4" FALSE "xfce4 xfce4-goodies" FALSE "lxde" FALSE "lxqt" FALSE "mate" FALSE "mate mate-extra" FALSE "budgie-desktop" FALSE "cinnamon" FALSE "deepin" FALSE "enlightenment" FALSE "jwm")
 if [ "$desktops" = "Egyéb nem ajánlott" ]
 then zenity --list --title="$title" --text="Nézd meg ezeket. A következőben kiválaszthatod." --column Nézet --width=450 --height=550 "$(pacman -Ss window manager)"
 wm=$(zenity --list --radiolist --column Jelöl --column Desktop --height=550 --width=450 --title="$title" --radiolist --text="Válasz tetszés szerint." $(pacman -Ssq window manager | awk '{ printf " FALSE ""\0"$0"\0" }'))
