@@ -187,8 +187,8 @@ kswpnofile() {
                     mount $home_part /mnt/home
                 # mnt
                 elif [ "$mnt_part" != "Nincs" ]
-                    then mkdir -p /mnt/mnt
-                    mount $mnt_part /mnt/mnt
+                    then mkdir -p /mnt/mnt/disk_0
+                    mount $mnt_part /mnt/mnt/disk_0
                 # opt
                 elif [ "$opt_part" != "Nincs" ]
                     then mkdir -p /mnt/opt
@@ -366,8 +366,8 @@ kswpf() {
                         mount $home_part /mnt/home
                     # mnt
                     elif [ "$mnt_part" != "Nincs" ]
-                        then mkdir -p /mnt/mnt
-                        mount $mnt_part /mnt/mnt
+                        then mkdir -p /mnt/mnt/disk_0
+                        mount $mnt_part /mnt/mnt/disk_0
                     # opt
                     elif [ "$opt_part" != "Nincs" ]
                         then mkdir -p /mnt/opt
@@ -542,8 +542,8 @@ kswno() {
                         mount $home_part /mnt/home
                     # mnt
                     elif [ "$mnt_part" != "Nincs" ]
-                        then mkdir -p /mnt/mnt
-                        mount $mnt_part /mnt/mnt
+                        then mkdir -p /mnt/mnt/disk_0
+                        mount $mnt_part /mnt/mnt/disk_0
                     # opt
                     elif [ "$opt_part" != "Nincs" ]
                         then mkdir -p /mnt/opt
@@ -745,16 +745,16 @@ csatolasom() {
 
                     # disk1
                     if [ "$disk1" != "Nincs" -o "$disk1" != " " ]
-                        then mkdir -p /mnt/disk_1
-                        mount $disk1 /mnt/disk_1
+                        then mkdir -p /mnt/mnt/disk_1
+                        mount $disk1 /mnt/mnt/disk_1
                     # disk 2
                     elif [ "$disk2" != "Nincs" -o "$disk2" != " "]
-                        then mkdir -p /mnt/disk_2
-                        mount $disk2 /mnt/disk_2
+                        then mkdir -p /mnt/mnt/disk_2
+                        mount $disk2 /mnt/mnt/disk_2
                     # disk3
                     elif [ "$disk3" != "Nincs" -o "$disk3" != " "]
-                        then mkdir -p /mnt/disk_3
-                        mount $disk3 /mnt/disk_3
+                        then mkdir -p /mnt/mnt/disk_3
+                        mount $disk3 /mnt/mnt/disk_3
                     fi
 }    
 
