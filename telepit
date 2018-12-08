@@ -744,15 +744,15 @@ csatolasom() {
                     fi
 
                     # disk1
-                    if [ "$disk1" != "Nincs" -o "$disk1" != " " ]
+                    if [ "$disk1" != "Nincs" ]
                         then mkdir -p /mnt/mnt/disk_1
                         mount $disk1 /mnt/mnt/disk_1
                     # disk 2
-                    elif [ "$disk2" != "Nincs" -o "$disk2" != " "]
+                    elif [ "$disk2" != "Nincs" ]
                         then mkdir -p /mnt/mnt/disk_2
                         mount $disk2 /mnt/mnt/disk_2
                     # disk3
-                    elif [ "$disk3" != "Nincs" -o "$disk3" != " "]
+                    elif [ "$disk3" != "Nincs" ]
                         then mkdir -p /mnt/mnt/disk_3
                         mount $disk3 /mnt/mnt/disk_3
                     fi
