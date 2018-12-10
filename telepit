@@ -1245,20 +1245,12 @@ if [ "$grb" = "0" ]
 	else
 		echo "# Bootloader telepítés..."
 
+        pacstrap /mnt grub efibootmgr
+        arch_chroot "os-prober"
+        arch_chroot "grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=magyarcslinux"
+        arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 
-		#if [ "$ans" = "Automatikus particionálás" ]
-		#	then root_part=${dev}2
-		#fi
 
-		[[ $(echo $root_part | grep "/dev/mapper/") != "" ]] && bl_root=$root_part \
-		|| bl_root=$"PARTUUID="$(blkid -s PARTUUID ${root_part} | sed 's/.*=//g' | sed 's/"//g')
-
-		arch_chroot "bootctl --path=/boot install"
-		echo -e "default  Arch\ntimeout  10" > /mnt/boot/loader/loader.conf
-		[[ -e /mnt/boot/initramfs-linux.img ]] && echo -e "title\tArch Linux\nlinux\t/vmlinuz-linux\ninitrd\t/initramfs-linux.img\noptions\troot=${bl_root} rw" > /mnt/boot/loader/entries/Arch.conf
-		[[ -e /mnt/boot/initramfs-linux-lts.img ]] && echo -e "title\tArch Linux LTS\nlinux\t/vmlinuz-linux-lts\ninitrd\t/initramfs-linux-lts.img\noptions\troot=${bl_root} rw" > /mnt/boot/loader/entries/Arch-lts.conf
-		[[ -e /mnt/boot/initramfs-linux-hardened.img ]] && echo -e "title\tArch Linux hardened\nlinux\t/vmlinuz-linux-hardened\ninitrd\t/initramfs-linux-hardened.img\noptions\troot=${bl_root} rw" > /mnt/boot/loader/entries/Arch-hardened.conf
-		[[ -e /mnt/boot/initramfs-linux-zen.img ]] && echo -e "title\tArch Linux Zen\nlinux\t/vmlinuz-linux-zen\ninitrd\t/initramfs-linux-zen.img\noptions\troot=${bl_root} rw" > /mnt/boot/loader/entries/Arch-zen.conf
 		fi
 fi
 
@@ -1279,8 +1271,8 @@ jatek=` cat jatek.txt `
 graf=` cat graf.txt `
 
 # telepíti
-arch_chroot "sudo pacman -Syy"
-arch_chroot "sudo pacman -S --needed --noconfirm $int $biz $med $off $utils $jatek $graf"
+arch_chroot "pacman -Syy"
+arch_chroot "pacman -S --needed --noconfirm $int $biz $med $off $utils $jatek $graf"
 if [ "$lbr" = "0" ]
 then arch_chroot "sudo pacman -S --noconfirm libreoffice-$lover $lolang"
 fi
