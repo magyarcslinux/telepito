@@ -1246,8 +1246,8 @@ if [ "$grb" = "0" ]
 		echo "# Bootloader telepítés..."
 
         pacstrap /mnt grub efibootmgr
-        arch_chroot "os-prober"
-        arch_chroot "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=magyarcslinux"
+        
+        arch_chroot "grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=magyarcslinux"
         arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 
 
