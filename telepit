@@ -8,15 +8,23 @@ man_partition() {
 zenity --question --title="$title" --height=40 --text "Kell-e particionálni?\nVálassza az  \"Igen\"-t és megnyílik a gparted.\n Particionálja és formázza meg, mert ezt nem végzi el a telepítő." --height=200 --width=500
 if [ "$?" = "0" ]
 	then gparted
+        kswp
+    else
+        kswp
 fi
-kswp
+
+}
+
+
 
 kswp() {
         swapker=$(zenity --list --title="$title" --radiolist --text "Válasz a swap lehetőségek közúl." --column '  '  --column Választ FALSE "Swap partició" TRUE "Swap fájl" FALSE "Nincs swap" --height=300 --width=400)
                 if [ "$swapker" = "Swap partició" ]
                         then kswpnofile
                 elif [ "$swapker" = "Swap fájl" ]
-                        then kswpfsize
+                        then 
+                            kswpf
+
                 else
                         kswno
                 #else
@@ -40,7 +48,7 @@ kswpfsize() {
                 mkswap /mnt/swapfile
                 swapon /mnt/swapfile) | zenity --progress --title="$title" --width=450 --pulsate --auto-close --no-cancel
                 #echo "swap készítés"
-                kswpf
+                egyeb_csatolas
 
 
         else
@@ -389,7 +397,8 @@ kswpf() {
                         then mkdir -p /mnt/var
                         mount $var_part /mnt/var
                     fi
-                    egyeb_csatolas
+                    kswpfsize
+                    
                         
 
                 }
@@ -581,9 +590,20 @@ kswno() {
                 --add-combo="Csatolási pont (/usr)" --combo-values="${mylist::-1}" --add-combo="Csatolási pont (/var)" --combo-values="${mylist::-1}")
 
 }
-	
 
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Automatikus particionálás
 auto_partition() {
 	list=` lsblk -lno NAME,TYPE,SIZE,MOUNTPOINT | grep "disk" `
