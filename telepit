@@ -947,6 +947,13 @@ zenity --question --title="$title" --height=40 --text="Szeretné telepíteni a p
 pa="$?"
 }
 
+# Biztonsági alkalmazások
+bizt_apps() {
+zenity --list --title="$title" --text "Válasza ki mit szeretne telepíteni" --checklist --column Jelöl --column Alkalmazás FALSE "keepassx2 " FALSE "veracrypt " FALSE "gufw " FALSE "clamav " FALSE "clamtk " --height=400 --width=400 > bizt2.txt
+sed -i -e 's/[|]//g' bizt2.txt
+}
+
+
 # internetes alkalmazások
 internet_apps() {
 zenity --list --title="$title" --text "Válasza ki mit szeretne telepíteni" --checklist --column Jelöl --column Alkalmazás FALSE "chromium " FALSE "midori " FALSE "netsurf " FALSE "filezilla " FALSE "opera " FALSE "evolution " FALSE "geary " FALSE "thunderbird " FALSE "transmission-gtk " FALSE "transmission-qt " FALSE "qbittorrent " FALSE "rtorrent " FALSE "hexchat " FALSE "vivaldi-snapshot " --height=400 --width=400 > int2.txt
@@ -967,7 +974,7 @@ sed -i -e 's/[|]//g' off2.txt
 
 # Hasznos alkalmazások
 utility_apps() {
-zenity --list --title="$title" --text "Válasz a listából" --checklist --column Választ --column Alkalmazás FALSE "htop " FALSE "terminator " FALSE "gnome-disk-utility " FALSE "gparted " FALSE "synapse " FALSE "virtualbox " FALSE "gufw " FALSE "redshift " FALSE "leafpad " FALSE "geany " FALSE "parcellite " FALSE "grsync " FALSE "guake " FALSE "ntfs-3g " FALSE "btrfs-progs " FALSE "gptfdisk " --height=400 --width=400 > utils.txt
+zenity --list --title="$title" --text "Válasz a listából" --checklist --column Választ --column Alkalmazás FALSE "htop " FALSE "terminator " FALSE "gnome-disk-utility " FALSE "gparted " FALSE "synapse " FALSE "virtualbox " FALSE "redshift " FALSE "leafpad " FALSE "geany " FALSE "parcellite " FALSE "grsync " FALSE "guake " FALSE "ntfs-3g " FALSE "btrfs-progs " FALSE "gptfdisk " --height=400 --width=400 > utils.txt
 sed -i -e 's/[|]//g' utils.txt
 }
 
@@ -1004,10 +1011,12 @@ fi
 
 # További alkalmazások
 installapps() {
-extra=$(zenity --list --height=300 --title="$title" --radiolist --text "Szeretnél további alkalmazásokat telepíteni?\nVálász a kategóriákból és megjelenik az alkalmazáslista.\nA választás után vissza fog a telepítő ide lépni.\nHa befejezted a válogatást válaszd a 'Befejezés'-t." --column Jelöl --column Kategóriák FALSE Internet FALSE Média FALSE Irodai FALSE Hasznos FALSE Játékosoknak FALSE Kiegészítők FALSE Befejezés  --height=400 --width=450)
+extra=$(zenity --list --height=300 --title="$title" --radiolist --text "Szeretnél további alkalmazásokat telepíteni?\nVálász a kategóriákból és megjelenik az alkalmazáslista.\nA választás után vissza fog a telepítő ide lépni.\nHa befejezted a válogatást válaszd a 'Befejezés'-t." --column Jelöl --column Kategóriák FALSE Internet FALSE Biztonság FALSE Média FALSE Irodai FALSE Hasznos FALSE Játékosoknak FALSE Kiegészítők FALSE Befejezés  --height=400 --width=450)
 
 if [ "$extra" = "Internet" ]
 	then internet_apps;installapps
+elif [ "$extra" = "Biztonság" ]
+    then bizt_apps;installapps
 elif [ "$extra" = "Média" ]
 	then media_apps;installapps
 elif [ "$extra" = "Irodai" ]
@@ -1127,7 +1136,7 @@ echo "%wheel ALL=(ALL) ALL" >> /mnt/etc/sudoers
 
 # Audió és videó driver telepítés
 echo "# Audió és videó driver telepítés..."
-pacstrap /mnt  mesa xorg-server xorg-apps xorg-xinit xorg-twm xterm xorg-drivers alsa-utils pulseaudio pulseaudio-alsa xf86-input-synaptics xf86-input-keyboard xf86-input-mouse xf86-input-libinput intel-ucode b43-fwcutter networkmanager nm-connection-editor network-manager-applet polkit-gnome ttf-dejavu gnome-keyring xdg-user-dirs lsb-release git gvfs gvfs-mtp tumbler os-prober
+pacstrap /mnt  mesa xorg-server xorg-apps xorg-xinit xorg-twm xterm xorg-drivers pavucontrol alsa-utils pulseaudio pulseaudio-alsa gstreamer playerctl gst-plugins-good gst-plugins-bad gst-plugins-base gst-plugins-ugly xf86-input-synaptics xf86-input-keyboard xf86-input-mouse xf86-input-libinput intel-ucode b43-fwcutter networkmanager nm-connection-editor network-manager-applet polkit-gnome ttf-dejavu gnome-keyring xdg-user-dirs lsb-release git gvfs gvfs-mtp tumbler lxappearance feh os-prober
 
 # virtualbox
 if [ "$vb" = "0" ]
@@ -1197,7 +1206,7 @@ echo "75"
 # Pamac telepítése
 echo "[magyarcs_repo]" >> /mnt/etc/pacman.conf;echo "SigLevel = Optional TrustAll" >> /mnt/etc/pacman.conf;echo "Server = https://raw.github.com/magyarcslinux/magyarcs_repo/master/x86_64" >> /mnt/etc/pacman.conf
 arch_chroot "pacman -Syy"
-arch_chroot "sudo pacman -S --noconfirm pamac-aur yay-bin"
+arch_chroot "sudo pacman -S --noconfirm pamac-aur yay-bin inxi"
 
 echo "75"
 # shell
@@ -1242,6 +1251,7 @@ arch_chroot "mkinitcpio -p $kernel"
 echo "# Kiválasztott szoftverek telepítése..."
 # Listák megnyitása
 int=` cat int2.txt `
+biz=` cat bizt2.txt `
 med=` cat med2.txt `
 off=` cat off2.txt `
 utils=` cat utils.txt `
@@ -1250,7 +1260,7 @@ graf=` cat graf.txt `
 
 # telepíti
 arch_chroot "sudo pacman -Syy"
-arch_chroot "sudo pacman -S --needed --noconfirm $int $med $off $utils $jatek $graf"
+arch_chroot "sudo pacman -S --needed --noconfirm $int $biz $med $off $utils $jatek $graf"
 if [ "$lbr" = "0" ]
 then arch_chroot "sudo pacman -S --noconfirm libreoffice-$lover $lolang"
 fi
