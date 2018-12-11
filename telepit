@@ -179,11 +179,11 @@ kswpnofile() {
 
                 # Csatolások
                 # /
-                mount $root_part /mnt
+                if [ "$root_part" != "Nincs" ]
+                 	then mount $root_part /mnt
+         		fi
 
-                # swap
-                mkswap $swap_part
-                swapon $swap_part
+                
 
                 # boot
                 if [ "$boot_part" != "Nincs" ]
@@ -225,6 +225,10 @@ kswpnofile() {
                     then mkdir -p /mnt/var
                     mount $var_part /mnt/var
                 fi
+                # swap
+                mkswap $swap_part
+                swapon $swap_part
+
                 egyeb_csatolas
 
 
@@ -365,7 +369,9 @@ kswpf() {
 
                     # Csatolások
                     # /
-                    mount $root_part /mnt
+                    if [ "$root_part" != "Nincs" ]
+                 		then mount $root_part /mnt
+         			fi
 
                     # swap
                     #mkswap $swap_part
@@ -549,7 +555,9 @@ kswno() {
 
                         # Csatolások
                     # /
-                    mount $root_part /mnt
+                    if [ "$root_part" != "Nincs" ]
+                 		then mount $root_part /mnt
+         			fi
 
                     # swap
                     #mkswap $swap_part
