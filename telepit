@@ -1170,7 +1170,7 @@ echo "75"
 # Pamac telepítése
 echo "[magyarcs_repo]" >> /mnt/etc/pacman.conf;echo "SigLevel = Optional TrustAll" >> /mnt/etc/pacman.conf;echo "Server = https://raw.github.com/magyarcslinux/magyarcs_repo/master/x86_64" >> /mnt/etc/pacman.conf
 arch_chroot "pacman -Syy"
-arch_chroot "sudo pacman -S --noconfirm --needed pamac-aur yay-bin inxi glxinfo glew bash-completion feh lxappearance gstreamer gst-plugins-good gst-plugins-bad gst-plugins-base gst-plugins-ugly neofetch "
+arch_chroot "sudo pacman -S --noconfirm --needed pamac-aur yay-bin inxi glxinfo glew bash-completion feh lxappearance gstreamer gst-plugins-good gst-plugins-bad gst-plugins-base gst-plugins-ugly neofetch tumbler "
 
 echo "75"
 # shell
