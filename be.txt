@@ -1,0 +1,13 @@
+Nincs
+/dev/nvme0n1p1
+/dev/nvme0n1p2
+/dev/nvme0n1p3
+/dev/nvme0n1p4
+/dev/sda1
+/dev/sda2
+/dev/sda3
+/dev/sda4
+/dev/sda5
+/dev/sda6
+/dev/sdb1
+/dev/sdb2

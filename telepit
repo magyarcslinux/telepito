@@ -189,32 +189,39 @@ kswpnofile() {
                 if [ "$boot_part" != "Nincs" ]
                     then mkdir -p /mnt/boot
                     mount $boot_part /mnt/boot
+                fi
                 # home
-                elif [ "$home_part" != "Nincs" ]
+                if [ "$home_part" != "Nincs" ]
                     then mkdir -p /mnt/home
                     mount $home_part /mnt/home
+                fi
                 # mnt
-                elif [ "$mnt_part" != "Nincs" ]
+                if [ "$mnt_part" != "Nincs" ]
                     then mkdir -p /mnt/mnt/disk_0
                     mount $mnt_part /mnt/mnt/disk_0
+                fi
                 # opt
-                elif [ "$opt_part" != "Nincs" ]
+                if [ "$opt_part" != "Nincs" ]
                     then mkdir -p /mnt/opt
                     mount $opt_part /mnt/opt
+                fi
                 # srv
-                elif [ "$srv_part" != "Nincs" ]
+                if [ "$srv_part" != "Nincs" ]
                     then mkdir -p /mnt/srv
                     mount $srv_part /mnt/srv
+                fi
                 # tmp
-                elif [ "$tmp_part" != "Nincs" ]
+                if [ "$tmp_part" != "Nincs" ]
                     then mkdir -p /mnt/tmp
                     mount $tmp_part /mnt/tmp
+                fi
                 # usr
-                elif [ "$usr_part" != "Nincs" ]
+                if [ "$usr_part" != "Nincs" ]
                     then mkdir -p /mnt/usr
                     mount $usr_part /mnt/usr
+                fi
                 # var
-                elif [ "$var_part" != "Nincs" ]
+                if [ "$var_part" != "Nincs" ]
                     then mkdir -p /mnt/var
                     mount $var_part /mnt/var
                 fi
@@ -368,32 +375,39 @@ kswpf() {
                     if [ "$boot_part" != "Nincs" ]
                         then mkdir -p /mnt/boot
                         mount $boot_part /mnt/boot
+                    fi
                     # home
-                    elif [ "$home_part" != "Nincs" ]
+                    if [ "$home_part" != "Nincs" ]
                         then mkdir -p /mnt/home
                         mount $home_part /mnt/home
+                    fi
                     # mnt
-                    elif [ "$mnt_part" != "Nincs" ]
+                    if [ "$mnt_part" != "Nincs" ]
                         then mkdir -p /mnt/mnt/disk_0
                         mount $mnt_part /mnt/mnt/disk_0
+                    fi
                     # opt
-                    elif [ "$opt_part" != "Nincs" ]
+                    if [ "$opt_part" != "Nincs" ]
                         then mkdir -p /mnt/opt
                         mount $opt_part /mnt/opt
+                    fi
                     # srv
-                    elif [ "$srv_part" != "Nincs" ]
+                    if [ "$srv_part" != "Nincs" ]
                         then mkdir -p /mnt/srv
                         mount $srv_part /mnt/srv
+                    fi
                     # tmp
-                    elif [ "$tmp_part" != "Nincs" ]
+                    if [ "$tmp_part" != "Nincs" ]
                         then mkdir -p /mnt/tmp
                         mount $tmp_part /mnt/tmp
+                    fi
                     # usr
-                    elif [ "$usr_part" != "Nincs" ]
+                    if [ "$usr_part" != "Nincs" ]
                         then mkdir -p /mnt/usr
                         mount $usr_part /mnt/usr
+                    fi
                     # var
-                    elif [ "$var_part" != "Nincs" ]
+                    if [ "$var_part" != "Nincs" ]
                         then mkdir -p /mnt/var
                         mount $var_part /mnt/var
                     fi
@@ -545,35 +559,43 @@ kswno() {
                     if [ "$boot_part" != "Nincs" ]
                         then mkdir -p /mnt/boot
                         mount $boot_part /mnt/boot
+                    fi
                     # home
-                    elif [ "$home_part" != "Nincs" ]
+                    if [ "$home_part" != "Nincs" ]
                         then mkdir -p /mnt/home
                         mount $home_part /mnt/home
+                    fi
                     # mnt
-                    elif [ "$mnt_part" != "Nincs" ]
+                    if [ "$mnt_part" != "Nincs" ]
                         then mkdir -p /mnt/mnt/disk_0
                         mount $mnt_part /mnt/mnt/disk_0
+                    fi
                     # opt
-                    elif [ "$opt_part" != "Nincs" ]
+                    if [ "$opt_part" != "Nincs" ]
                         then mkdir -p /mnt/opt
                         mount $opt_part /mnt/opt
+                    fi
                     # srv
-                    elif [ "$srv_part" != "Nincs" ]
+                    if [ "$srv_part" != "Nincs" ]
                         then mkdir -p /mnt/srv
                         mount $srv_part /mnt/srv
+                    fi
                     # tmp
-                    elif [ "$tmp_part" != "Nincs" ]
+                    if [ "$tmp_part" != "Nincs" ]
                         then mkdir -p /mnt/tmp
                         mount $tmp_part /mnt/tmp
+                    fi
                     # usr
-                    elif [ "$usr_part" != "Nincs" ]
+                    if [ "$usr_part" != "Nincs" ]
                         then mkdir -p /mnt/usr
                         mount $usr_part /mnt/usr
+                    fi
                     # var
-                    elif [ "$var_part" != "Nincs" ]
+                    if [ "$var_part" != "Nincs" ]
                         then mkdir -p /mnt/var
                         mount $var_part /mnt/var
                     fi
+                    
                     egyeb_csatolas
 
 
