@@ -1226,7 +1226,7 @@ echo "75"
 # Pamac telepítése
 echo "[magyarcs_repo]" >> /mnt/etc/pacman.conf;echo "SigLevel = Optional TrustAll" >> /mnt/etc/pacman.conf;echo "Server = https://raw.github.com/magyarcslinux/magyarcs_repo/master/x86_64" >> /mnt/etc/pacman.conf
 arch_chroot "pacman -Syy"
-arch_chroot "sudo pacman -S --noconfirm pamac-aur yay-bin inxi"
+arch_chroot "sudo pacman -S --noconfirm pamac-aur yay-bin "
 
 echo "75"
 # shell
