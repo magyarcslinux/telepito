@@ -1170,7 +1170,7 @@ echo "75"
 # Pamac telepítése
 echo "[magyarcs_repo]" >> /mnt/etc/pacman.conf;echo "SigLevel = Optional TrustAll" >> /mnt/etc/pacman.conf;echo "Server = https://raw.github.com/magyarcslinux/magyarcs_repo/master/x86_64" >> /mnt/etc/pacman.conf
 arch_chroot "pacman -Syy"
-arch_chroot "sudo pacman -S --noconfirm --needed pamac-aur yay-bin inxi glxinfo glew bash-completion feh lxappearance gstreamer gst-plugins-good gst-plugins-bad gst-plugins-base gst-plugins-ugly neofetch tumbler "
+arch_chroot "sudo pacman -S --noconfirm --needed pamac-aur yay-bin inxi glxinfo glew bash-completion feh lxappearance gstreamer gst-plugins-good gst-plugins-bad gst-plugins-base gst-plugins-ugly neofetch tumbler os-prober "
 
 echo "75"
 # shell
@@ -1190,7 +1190,7 @@ if [ "$grb" = "0" ]
 		echo "# Bootloader telepítés..."
 
         pacstrap /mnt grub efibootmgr
-        
+        arch_chroot "os-prober"
         arch_chroot "grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=magyarcslinux"
         arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 
