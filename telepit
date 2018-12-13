@@ -623,7 +623,105 @@ kswno() {
 
 
 
+# Egyeb csatolások
+egyeb_csatolas() {
 
+    # Egyéb particó csatolása
+    zenity --question --title="$title" --text "Szeretnél külön csatolni egyéb patriciót?" --height=100 --width=300
+        if [ "$?" = "0" ]
+        then 
+            csatolasom
+
+        fi
+
+}
+
+
+csatolasom() {
+
+    IFS='|'
+
+        function ellenor {
+
+                disk1szamlal=0
+                disk2szamlal=0
+                disk3szamlal=0
+                nincstolt=0
+
+                disk1=$1
+                disk2=$2
+                disk3=$3
+
+                for k in { $disk1 $disk2 $disk3 }
+                do
+                        if [ "$k" == " " ]
+                                then  ((nincstolt++))
+                                #echo $nincstolt
+                        fi
+                done
+
+
+
+                # Ha üres valamelyik partició...
+                if [ "$nincstolt" -gt "0" ]
+                        then zenity --error --title="$title" --text "Minden mező kitöltése kötelező!!!\nHa nem akarsz az adott helyre csatolni, válaszd a Nincs lehetőséget" --height=100  --width=300 
+                        csatolasom
+                        return 1
+                        fi 
+
+                    # Hanyszor szerepel a partició
+                for i in { $disk1 $disk2 $disk3 }
+                do
+                        if [ "$i" = "$disk1" -a "$i" != "Nincs" ]
+                                then ((disk1szamlal++))
+                        
+                        elif [ "$i" = "$disk2" -a "$i" != "Nincs" ]
+                                then ((disk2szamlal++))
+                        
+                        elif [ "$i" = "$disk3" -a "$i" != "Nincs" ]
+                                then ((disk3szamlal++))
+                       
+                        fi
+                        
+               done
+               echo $disk1szamlal
+               echo $disk2szamlal
+               echo $disk3szamlal
+
+
+               if [ "$disk1szamlal" -gt "1" -o "$disk2szamlal" -gt "1" -o "$disk3szamlal" -gt "1" ]
+                        then 
+                            zenity --error --title="$title" --text "Többször választottad ugyanazt a particiót" --height=100  --width=300
+                            csatolasom
+                            return 1
+                    fi
+
+                    # disk1
+                    if [ "$disk1" != "Nincs" -a "$disk1szamlal" != "0" ]
+                        then mkdir -p /mnt/mnt/disk_1
+                        mount $disk1 /mnt/mnt/disk_1
+                        fi
+                    # disk 2
+                    if [ "$disk2" != "Nincs" -a "$disk2szamlal" != "0" ]
+                        then mkdir -p /mnt/mnt/disk_2
+                        mount $disk2 /mnt/mnt/disk_2
+                        fi
+                    # disk3
+                    if [ "$disk3" != "Nincs" -a "$disk3szamlal" != "0" ]
+                        then  mkdir -p /mnt/mnt/disk_3
+                        mount $disk3 /mnt/mnt/disk_3
+                    fi
+}    
+
+    echo "Nincs" > csatol.txt
+    sudo fdisk -l | grep dev | grep -v Disk | awk '{print $1}' >> csatol.txt
+    tr -s '\n' '|' < csatol.txt > csatolki.txt
+    mylist=` cat csatolki.txt `
+    ellenor $(zenity --forms --text "Egyéb meghajtók csatolása." --add-combo="Csatolási pont (/mnt/disk1)" --combo-values="${mylist::-1}" \
+    --add-combo="Csatolási pont (/mnt/disk2)" --combo-values=$"${mylist::-1}" --add-combo="Csatolási pont (/mnt/disk3)" --combo-values="${mylist::-1}")
+    
+  
+}
 
 
 
@@ -719,6 +817,7 @@ auto_partition() {
 		swapon /mnt/swapfile
 		swapfile="yes") | zenity --progress --title="$title" --width=450 --pulsate --auto-close --no-cancel
 	fi
+	egyeb_csatolas
     
 	
 			
@@ -1213,6 +1312,11 @@ off=` cat off2.txt `
 utils=` cat utils.txt `
 jatek=` cat jatek.txt `
 graf=` cat graf.txt `
+
+if [ "$video" != " " ]
+	then arch_chroot "pacman -S --noconfirm $video"
+fi
+
 
 # telepíti
 arch_chroot "pacman -Syy"
