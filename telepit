@@ -1313,9 +1313,7 @@ utils=` cat utils.txt `
 jatek=` cat jatek.txt `
 graf=` cat graf.txt `
 
-if [ "$video" != " " ]
-	then arch_chroot "pacman -S --noconfirm $video"
-fi
+
 
 
 # telepíti
@@ -1376,7 +1374,7 @@ user_password
 changeshell
 kernel
 vbox
-nvidia
+#nvidia
 #pamacaur
 cups
 displaymanager
