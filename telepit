@@ -1308,9 +1308,9 @@ arch_chroot "mkinitcpio -p $kernel"
 if [ "$desktops" = "bspwm" ]
 	then arch_chroot "pacman -S --noconfirm --needed sxhkd xdo rxvt-unicode "
 		arch_chroot "mkdir -p /home/$username/.config/{bspwm,sxhkd}"
-		#arch_chroot "mkdir  -p /home/$USER/.config/sxhkd"
 		arch_chroot "cp /usr/share/doc/bspwm/examples/bspwmrc /home/$username/.config/bspwm/"
 		arch_chroot "cp /usr/share/doc/bspwm/examples/sxhkdrc /home/$username/.config/sxhkd/"
+				arch_chroot "chown $username: /home/$username/.config && chown $username: /home/$username/.config/sxhkd && chown $username: /home/$username/.config/bspwm && chown $username: /home/$username/.config/sxhkd/sxhkdrc && chown $username: /home/$username/.config/bspwm/bspwmrc"
 		arch_chroot "chmod u+x  /home/$username/.config/bspwm/bspwmrc"
 fi
 
