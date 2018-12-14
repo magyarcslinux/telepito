@@ -1283,14 +1283,14 @@ if [ "$grb" = "0" ]
 	then if [ "$SYSTEM" = 'BIOS' ]
 		then echo "# Installing Bootloader..."
 		pacstrap /mnt grub
-		arch_chroot "os-prober"
+		#arch_chroot "os-prober"
 		arch_chroot "grub-install --target=i386-pc $grub_device"
 		arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 	else
 		echo "# Bootloader telepítés..."
 
         pacstrap /mnt grub efibootmgr
-        arch_chroot "os-prober"
+        #arch_chroot "os-prober"
         arch_chroot "grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=magyarcslinux"
         arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 
@@ -1306,11 +1306,11 @@ arch_chroot "mkinitcpio -p $kernel"
 # bspwm add
 
 if [ "$desktops" = "bspwm" ]
-	then arch_chroot "pacman -S --noconfirm --needed sxhkd xdo "
-		arch_chroot "mkdir -p ~/.config/{bspwm,sxhkd}"
-		arch_chroot "cp /usr/local/share/doc/bspwm/examples/bspwmrc ~/.config/bspwm/"
-		arch_chroot "cp /usr/local/share/doc/bspwm/examples/sxhkdrc ~/.config/sxhkd/"
-		arch_chroot "chmod u+x ~/.config/bspwm/bspwmrc"
+	then arch_chroot "pacman -S --noconfirm --needed sxhkd xdo rxvt-unicode "
+		arch_chroot "mkdir -p /home/$USER/.config/{bspwm,sxhkd}"
+		arch_chroot "cp /usr/share/doc/bspwm/examples/bspwmrc /home/$USER/.config/bspwm/"
+		arch_chroot "cp /usr/share/doc/bspwm/examples/sxhkdrc /home/$USER/.config/sxhkd/"
+		arch_chroot "chmod u+x  /home/$USER/.config/bspwm/bspwmrc"
 fi
 
 
