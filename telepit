@@ -824,14 +824,6 @@ auto_partition() {
 }
 
 
-# Egyeb csatolások
-
-
-
-
-
-
-
 
 # Particionálás
 partition() {
@@ -992,7 +984,7 @@ cp="$?"
 
 # Asztali felület
 desktop() {
-desktops=$(zenity --list --height=550 --width=450 --title="$title" --radiolist --text="Válasz asztali felületet." --column '   ' --column Asztal FALSE "gnome" FALSE "gnome gnome-extra" FALSE "plasma" FALSE "plasma kde-applications" FALSE "xfce4" FALSE "xfce4 xfce4-goodies" FALSE "lxde" FALSE "lxqt" FALSE "mate" FALSE "mate mate-extra" FALSE "budgie-desktop" FALSE "cinnamon" FALSE "deepin" FALSE "enlightenment" FALSE "jwm" FALSE "bspwm")
+desktops=$(zenity --list --height=550 --width=450 --title="$title" --radiolist --text="Válasz asztali felületet." --column '   ' --column Asztal FALSE "gnome" FALSE "gnome gnome-extra" FALSE "plasma" FALSE "plasma kde-applications" FALSE "xfce4" FALSE "xfce4 xfce4-goodies" FALSE "lxde" FALSE "lxqt" FALSE "mate" FALSE "mate mate-extra" FALSE "budgie-desktop" FALSE "cinnamon" FALSE "deepin" FALSE "enlightenment" FALSE "jwm" FALSE "bspwm" FALSE "qtile"
 if [ "$desktops" = "Egyéb nem ajánlott" ]
 then zenity --list --title="$title" --text="Nézd meg ezeket. A következőben kiválaszthatod." --column Nézet --width=450 --height=550 "$(pacman -Ss window manager)"
 wm=$(zenity --list --radiolist --column Jelöl --column Desktop --height=550 --width=450 --title="$title" --radiolist --text="Válasz tetszés szerint." $(pacman -Ssq window manager | awk '{ printf " FALSE ""\0"$0"\0" }'))
@@ -1317,6 +1309,17 @@ if [ "$desktops" = "bspwm" ]
 		arch_chroot "chmod u+x  /home/$username/.config/bspwm/bspwmrc"
 fi
 
+
+# qtile
+
+if [ "$desktops" = "qtile" ]
+	then arch_chroot "pacman -S --noconfirm --needed python-setuptools python-xdg pango python-xcffib python-cairocffi python-dbus python-gobject "
+		arch_chroot "mkdir -p /home/$username/.config/qtile"
+		arch_chroot "cp /usr/share/doc/qtile/default_config.py /home/$username/.config/qtile/config.py"
+		#arch_chroot "chown $username: /home/$username/.config && chown $username: /home/$username/.config/sxhkd && chown $username: /home/$username/.config/bspwm && chown $username: /home/$username/.config/sxhkd/sxhkdrc && chown $username: /home/$username/.config/bspwm/bspwmrc"
+		arch_chroot "chown -R $username /home/$username/*"
+		arch_chroot "chmod u+x  /home/$username/.config/bspwm/bspwmrc"
+fi
 
 
 
