@@ -1270,6 +1270,7 @@ echo "75"
 echo "[magyarcs_repo]" >> /mnt/etc/pacman.conf;echo "SigLevel = Optional TrustAll" >> /mnt/etc/pacman.conf;echo "Server = https://raw.github.com/magyarcslinux/magyarcs_repo/master/x86_64" >> /mnt/etc/pacman.conf
 arch_chroot "pacman -Syy"
 arch_chroot "sudo pacman -S --noconfirm --needed pamac-aur yay-bin inxi glxinfo glew bash-completion feh lxappearance gstreamer gst-plugins-good gst-plugins-bad gst-plugins-base gst-plugins-ugly neofetch tumbler os-prober ddrescue curl git wget vim mousepad "
+arch_chroot "pacman -Syy"
 arch_chroot "sudo pacman -S --noconfirm --needed sublime-text-dev "
 
 echo "75"
@@ -1311,7 +1312,8 @@ if [ "$desktops" = "bspwm" ]
 		arch_chroot "mkdir -p /home/$username/.config/{bspwm,sxhkd}"
 		arch_chroot "cp /usr/share/doc/bspwm/examples/bspwmrc /home/$username/.config/bspwm/"
 		arch_chroot "cp /usr/share/doc/bspwm/examples/sxhkdrc /home/$username/.config/sxhkd/"
-				arch_chroot "chown $username: /home/$username/.config && chown $username: /home/$username/.config/sxhkd && chown $username: /home/$username/.config/bspwm && chown $username: /home/$username/.config/sxhkd/sxhkdrc && chown $username: /home/$username/.config/bspwm/bspwmrc"
+		#arch_chroot "chown $username: /home/$username/.config && chown $username: /home/$username/.config/sxhkd && chown $username: /home/$username/.config/bspwm && chown $username: /home/$username/.config/sxhkd/sxhkdrc && chown $username: /home/$username/.config/bspwm/bspwmrc"
+		arch_chroot "chown -R $username /home/$username/*"
 		arch_chroot "chmod u+x  /home/$username/.config/bspwm/bspwmrc"
 fi
 
