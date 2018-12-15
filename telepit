@@ -1305,7 +1305,7 @@ if [ "$desktops" = "bspwm" ]
 		arch_chroot "cp /usr/share/doc/bspwm/examples/bspwmrc /home/$username/.config/bspwm/"
 		arch_chroot "cp /usr/share/doc/bspwm/examples/sxhkdrc /home/$username/.config/sxhkd/"
 		#arch_chroot "chown $username: /home/$username/.config && chown $username: /home/$username/.config/sxhkd && chown $username: /home/$username/.config/bspwm && chown $username: /home/$username/.config/sxhkd/sxhkdrc && chown $username: /home/$username/.config/bspwm/bspwmrc"
-		arch_chroot "chown -R $username /home/$username/*"
+		arch_chroot "chown -R $username: /home/$username/"
 		arch_chroot "chmod u+x  /home/$username/.config/bspwm/bspwmrc"
 fi
 
@@ -1317,7 +1317,7 @@ if [ "$desktops" = "qtile" ]
 		arch_chroot "mkdir -p /home/$username/.config/qtile"
 		arch_chroot "cp /usr/share/doc/qtile/default_config.py /home/$username/.config/qtile/config.py"
 		#arch_chroot "chown $username: /home/$username/.config && chown $username: /home/$username/.config/sxhkd && chown $username: /home/$username/.config/bspwm && chown $username: /home/$username/.config/sxhkd/sxhkdrc && chown $username: /home/$username/.config/bspwm/bspwmrc"
-		arch_chroot "chown -R $username /home/$username/*"
+		arch_chroot "chown -R $username: /home/$username/"
 		arch_chroot "chmod u+x  /home/$username/.config/bspwm/bspwmrc"
 fi
 
