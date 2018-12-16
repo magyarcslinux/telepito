@@ -1324,7 +1324,7 @@ fi
 
 # i3
 
-f [ "$desktops" = "i3" ]
+if [ "$desktops" = "i3" ]
 	then arch_chroot "pacman -S --noconfirm --needed  i3-gaps i3lock i3status thunar termite "
 fi
 
