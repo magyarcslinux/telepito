@@ -1323,9 +1323,8 @@ fi
 
 
 # i3
-
 if [ "$desktops" = "i3" ]
-	then arch_chroot "pacman -S --noconfirm --needed  i3-gaps i3lock i3status thunar termite "
+	then arch_chroot "pacman -S --noconfirm --needed  i3-gaps i3lock i3status thunar termite scrot "
 fi
 
 # Kiválasztott szoftverek telepítése
