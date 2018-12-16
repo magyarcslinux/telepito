@@ -1300,7 +1300,7 @@ arch_chroot "mkinitcpio -p $kernel"
 # bspwm add
 
 if [ "$desktops" = "bspwm" ]
-	then arch_chroot "pacman -S --noconfirm --needed sxhkd xdo rxvt-unicode "
+	then arch_chroot "pacman -S --noconfirm --needed sxhkd xdo rxvt-unicode thunar scrot rofi "
 		arch_chroot "mkdir -p /home/$username/.config/{bspwm,sxhkd}"
 		arch_chroot "cp /usr/share/doc/bspwm/examples/bspwmrc /home/$username/.config/bspwm/"
 		arch_chroot "cp /usr/share/doc/bspwm/examples/sxhkdrc /home/$username/.config/sxhkd/"
@@ -1313,7 +1313,7 @@ fi
 # qtile
 
 if [ "$desktops" = "qtile" ]
-	then arch_chroot "pacman -S --noconfirm --needed python-setuptools python-xdg pango python-xcffib python-cairocffi python-dbus python-gobject "
+	then arch_chroot "pacman -S --noconfirm --needed python-setuptools python-xdg pango python-xcffib python-cairocffi python-dbus python-gobject thunar scrot rofi "
 		arch_chroot "mkdir -p /home/$username/.config/qtile"
 		arch_chroot "cp /usr/share/doc/qtile/default_config.py /home/$username/.config/qtile/config.py"
 		#arch_chroot "chown $username: /home/$username/.config && chown $username: /home/$username/.config/sxhkd && chown $username: /home/$username/.config/bspwm && chown $username: /home/$username/.config/sxhkd/sxhkdrc && chown $username: /home/$username/.config/bspwm/bspwmrc"
@@ -1324,7 +1324,7 @@ fi
 
 # i3
 if [ "$desktops" = "i3" ]
-	then arch_chroot "pacman -S --noconfirm --needed  i3-gaps i3lock i3status thunar termite scrot "
+	then arch_chroot "pacman -S --noconfirm --needed  i3-gaps i3lock i3status thunar termite scrot rofi "
 fi
 
 # Kiválasztott szoftverek telepítése
