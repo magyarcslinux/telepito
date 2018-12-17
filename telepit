@@ -1110,7 +1110,7 @@ reflector --verbose -l 50 -p http --sort rate --save /etc/pacman.d/mirrorlist
 # Csomaglista frissítése
 echo "# Csomaglista frissítése..."
 sudo pacman -Syy
-arch_chroot "sudo pacman -Syy"
+arch_chroot "acman -Syy"
 
 #Telepítés base
 echo "#Telepítés base..."
@@ -1184,6 +1184,13 @@ arch_chroot "echo $hname > /etc/hostname"
 
 # sudo beállítás
 echo "%wheel ALL=(ALL) ALL" >> /mnt/etc/sudoers
+
+# Keyring hozzáadása
+arch_chroot "pacman -Sy gnupg archlinux-keyring --noconfirm "
+arch_chroot "pacman-key --init "
+arch_chroot "pacman-key --populate archlinux "
+arch_chroot "pacman -Syy"
+
 
 
 # Audió és videó driver telepítés
