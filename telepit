@@ -1110,7 +1110,7 @@ reflector --verbose -l 50 -p http --sort rate --save /etc/pacman.d/mirrorlist
 # Csomaglista frissítése
 echo "# Csomaglista frissítése..."
 sudo pacman -Syy
-arch_chroot "acman -Syy"
+arch_chroot "pacman -Syy"
 
 #Telepítés base
 echo "#Telepítés base..."
@@ -1190,22 +1190,23 @@ echo "%wheel ALL=(ALL) ALL" >> /mnt/etc/sudoers
 
 # Audió és videó driver telepítés
 echo "# Audió és videó driver telepítés..."
-pacstrap /mnt mesa xorg-server xorg-apps xorg-xinit xorg-twm xterm xorg-drivers alsa-utils pulseaudio pulseaudio-alsa xf86-input-synaptics xf86-input-keyboard xf86-input-mouse xf86-input-libinput intel-ucode b43-fwcutter networkmanager nm-connection-editor network-manager-applet polkit-gnome ttf-dejavu gnome-keyring xdg-user-dirs gvfs gvfs-mtp 
+arch_chroot "pacman -Syy"
+arch_chroot "pacman -S --noconfirm --needed mesa xorg-server xorg-apps xorg-xinit xorg-twm xterm xorg-drivers alsa-utils pulseaudio pulseaudio-alsa xf86-input-synaptics xf86-input-keyboard xf86-input-mouse xf86-input-libinput intel-ucode b43-fwcutter networkmanager nm-connection-editor network-manager-applet polkit-gnome ttf-dejavu gnome-keyring xdg-user-dirs gvfs gvfs-mtp "
 
 # virtualbox
 if [ "$vb" = "0" ]
 	then
 	if [ "$kernel" = "linux" ]
-		then pacstrap /mnt virtualbox-guest-modules-arch virtualbox-guest-utils
+		then  arch_chroot "pacman -S --noconfirm --needed virtualbox-guest-modules-arch virtualbox-guest-utils "
         	echo -e "vboxguest\nvboxsf\nvboxvideo" > /mnt/etc/modules-load.d/virtualbox.conf
 	elif [ "$kernel" = "linux-lts" ]
-		then pacstrap /mnt virtualbox-guest-dkms virtualbox-guest-utils linux-lts-headers
+		then arch_chroot "pacman -S --noconfirm --needed virtualbox-guest-dkms virtualbox-guest-utils linux-lts-headers "
 		echo -e "vboxguest\nvboxsf\nvboxvideo" > /mnt/etc/modules-load.d/virtualbox.conf
 	elif [ "$kernel" = "linux-hardened" ]
-		then pacstrap /mnt virtualbox-guest-dkms virtualbox-guest-utils linux-hardened-headers
+		then arch_chroot "pacman -S --noconfirm --needed virtualbox-guest-dkms virtualbox-guest-utils linux-hardened-headers "
 		echo -e "vboxguest\nvboxsf\nvboxvideo" > /mnt/etc/modules-load.d/virtualbox.conf
 	elif [ "$kernel" = "linux-zen" ]
-		then pacstrap /mnt virtualbox-guest-dkms virtualbox-guest-utils linux-zen-headers
+		then arch_chroot "pacman -S --noconfirm --needed virtualbox-guest-dkms virtualbox-guest-utils linux-zen-headers "
 		echo -e "vboxguest\nvboxsf\nvboxvideo" > /mnt/etc/modules-load.d/virtualbox.conf
 	fi
 fi
@@ -1231,23 +1232,31 @@ fi
 # Asztali környezet indító
 if [ "$dm"  = "Alapértelmezett" ]
 then if [ "$desktop" = "gnome" ]
-	then arch_chroot "systemctl enable gdm.service"
+		then arch_chroot "systemctl enable gdm.service"
 	elif [ "$desktop" = "gnome gnome-extra" ]
-	then arch_chroot "systemctl enable gdm.service"
+		then arch_chroot "systemctl enable gdm.service"
 	elif [ "$desktop" = "budgie-desktop" ]
-	then pacstrap /mnt lightdm lightdm-gtk-greeter-settings lightdm-gtk-greeter gnome-control-center gnome-backgrounds;arch_chroot "systemctl enable lightdm.service"
+		then arch_chroot "pacman -S --noconfirm --needed lightdm lightdm-gtk-greeter-settings lightdm-gtk-greeter gnome-control-center gnome-backgrounds "
+			arch_chroot "systemctl enable lightdm.service"
 	elif [ "$desktop" = "lxde" ]
-	then pacstrap /mnt lxdm-gtk3;arch_chroot "systemctl enable lxdm.service"
+		then arch_chroot "pacman -S --noconfirm --needed lxdm-gtk3 "
+			arch_chroot "systemctl enable lxdm.service"
 	elif [ "$desktop" = "plasma" ]
-	then pacstrap /mnt sddm;arch_chroot "systemctl enable sddm.service"
+		then arch_chroot "pacman -S --noconfirm --needed sddm "
+			arch_chroot "systemctl enable sddm.service"
 	elif [ "$desktop" = "plasma kde-applications" ]
-	then pacstrap /mnt sddm;arch_chroot "systemctl enable sddm.service"
-	else pacstrap /mnt lightdm lightdm-gtk-greeter-settings lightdm-gtk-greeter
-	arch_chroot "systemctl enable lightdm.service"
+		then arch_chroot "pacman -S --noconfirm --needed sddm "
+			arch_chroot "systemctl enable sddm.service"
+	else 
+		arch_chroot "pacman -S --noconfirm --needed lightdm lightdm-gtk-greeter-settings lightdm-gtk-greeter "
+		arch_chroot "systemctl enable lightdm.service"
 	fi
-elif [ "$dm" = "lightdm" ]
-then pacstrap /mnt lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings;arch_chroot "systemctl enable lightdm.service"
-else pacstrap /mnt $dm;arch_chroot "systemctl enable $dm.service"
+	elif [ "$dm" = "lightdm" ]
+		then arch_chroot "pacman -S --noconfirm --needed lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings "
+			arch_chroot "systemctl enable lightdm.service"
+	else
+		arch_chroot "pacman -S --noconfirm --needed $dm "
+		arch_chroot "systemctl enable $dm.service"
 fi
 
 # Hálózat engedélyezése
@@ -1272,8 +1281,11 @@ arch_chroot "sudo pacman -S --noconfirm --needed sublime-text-dev "
 echo "75"
 # shell
 if [ "$shell" = "zsh" ]
-then arch_chroot "sudo pacman -S --noconfirm zsh zsh-syntax-highlighting zsh-completions grml-zsh-config;chsh -s /usr/bin/zsh $username"
-else arch_chroot "sudo pacman -S --noconfirm $shell;chsh -s /usr/bin/$shell"
+	then arch_chroot "sudo pacman -S --noconfirm zsh zsh-syntax-highlighting zsh-completions grml-zsh-config;chsh -s /usr/bin/zsh $username"
+elif [ "$shell" = "fish" ]
+	then  arch_chroot "sudo pacman -S --noconfirm $shell;chsh -s /usr/bin/$shell"
+else 
+	arch_chroot "pacman -S --noconfirm --needed $shell;chsh -s /usr/bin/$shell" 
 fi
 
 # Bootloader telepítés
