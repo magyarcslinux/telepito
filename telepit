@@ -1219,7 +1219,7 @@ else
 	arch_chroot "pacman-key --init "
 	arch_chroot "pacman-key --populate archlinux "
 	arch_chroot "pacman -Syy"
-	pacstrap /mnt $desktops
+	arch_chroot "pacman -S --noconfirm --needed $desktops "
 fi
 
 # Nyomtatók
