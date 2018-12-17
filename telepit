@@ -54,6 +54,7 @@ kswpfsize() {
         else
                 kswp
         fi
+        egyeb_csatolas
 
 }
 
@@ -228,11 +229,7 @@ kswpnofile() {
                 # swap
                 mkswap $swap_part
                 swapon $swap_part
-
-                
-
-
-
+                egyeb_csatolas
 
                 }
 
@@ -603,9 +600,7 @@ kswno() {
                         then mkdir -p /mnt/var
                         mount $var_part /mnt/var
                     fi
-                    
-                    
-
+                    egyeb_csatolas
 
                 }
 
@@ -899,14 +894,16 @@ fi
 nvidia() {
 graphics=$(lspci | grep -i "vga" | sed 's/.*://' | sed 's/(.*//' | sed 's/^[ \t]*//')
 card=$(lspci -k | grep -A 2 -E "(VGA|3D)")
+
 if [[ $(echo $card | grep -i 'nvidia') != "" ]]
 	then zenity --question --title="$title" --height=40 --text "A telepítő észlelte, hogy NVIDIA grafikus kártyát használ.\nSzeretné telepíteni a megfelelő driver-t?" --height=100 --width=400
 		if [ "$?" = "0" ]
-			then video=$(zenity --list --height=400 --title="$title" --text "Meg kell tudnia, hogy az NVIDIA grafikus kártya melyik modelljét használja.\nAz NVIDIA 400 sorozat és újabb esetén telepítse az nvidia és az nvidia-libgl.\n\nA 8000-9000 vagy 100-300 sorozat esetén az nvidia-340xx és nvidia-340xx-libgl.\n\nJelenlegi kártyád:\n$card\n\nVálasz az NVIDIA drivere-ek közül amelyiket telepíteni akarod." --checklist --column Jelöl --column Driver FALSE "nvidia nvidia-utils nvidia-settings lib32-libvdpau lib32-libva lib32-nvidia-utils lib32-libxtst lib32-libxrandr lib32-libpulse lib32-gdk-pixbuf2 lib32-gtk2 lib32-openal" FALSE "nvidia-340xx nvidia-340xx-utils nvidia-settings lib32-libvdpau lib32-libva lib32-nvidia-utils lib32-libxtst lib32-libxrandr lib32-libpulse lib32-gdk-pixbuf2 lib32-gtk2 lib32-openal" --height=350 --width=550)
-			else video="mesa xf86-video-nouveau"
+			then video=$(zenity --list --height=400 --title="$title" --text "Meg kell tudnia, hogy az NVIDIA grafikus kártya melyik modelljét használja.\nAz NVIDIA 400 sorozat és újabb esetén telepítse az nvidia és az nvidia-libgl.\n\nA 8000-9000 vagy 100-300 sorozat esetén az nvidia-340xx és nvidia-340xx-libgl.\n\nJelenlegi kártyád:\n$card\n\nVálasz az NVIDIA drivere-ek közül amelyiket telepíteni akarod." --radiolist --column Jelöl --column Driver FALSE "nvidia" FALSE "nvidia-390xx" FALSE "nvidia-340xx" --height=350 --width=550)
+			else video="mesa"
 		fi
-	else video="mesa xf86-video-nouveau"
+	else video="mesa"
 fi
+
 }
 
 
@@ -1292,6 +1289,26 @@ if [ "$grb" = "0" ]
 		fi
 fi
 
+# nvidia
+
+if [ "$video" != "" ]
+	then echo "# NVIDIA driver telepítése..."
+	arch_chroot "pacman -Syy"
+	if [ "$video" = "nvidia" ]
+		then arch_chroot "pacman -S --noconfirm --needed nvidia nvidia-settings lib32-libvdpau lib32-libva lib32-nvidia-utils lib32-libxtst lib32-libxrandr lib32-libpulse lib32-gdk-pixbuf2 lib32-gtk2 lib32-openal "
+	elif [ "$video" = "nvidia-390xx" ]
+		then arch_chroot "pacman -S --noconfirm --needed nvidia-390xx nvidia-390xx-settings lib32-libvdpau lib32-libva lib32-nvidia-utils lib32-libxtst lib32-libxrandr lib32-libpulse lib32-gdk-pixbuf2 lib32-gtk2 lib32-openal "
+	elif [ "$video" = "nvidia-340xx" ]
+		then arch_chroot "pacman -S --noconfirm --needed nvidia-340xx nvidia-340xx-settings lib32-libvdpau lib32-libva lib32-nvidia-utils lib32-libxtst lib32-libxrandr lib32-libpulse lib32-gdk-pixbuf2 lib32-gtk2 lib32-openal "
+	else
+		echo "mesa"
+	fi
+else
+	echo "Csak mesa"
+fi
+
+
+
 # mkinit inditása
 echo "# Running mkinitcpio..."
 arch_chroot "mkinitcpio -p $kernel"
@@ -1345,7 +1362,7 @@ graf=` cat graf.txt `
 arch_chroot "pacman -Syy"
 arch_chroot "pacman -S --needed --noconfirm $int $biz $med $off $utils $jatek $graf"
 if [ "$lbr" = "0" ]
-then arch_chroot "sudo pacman -S --noconfirm libreoffice-$lover $lolang"
+then arch_chroot "sudo pacman -S --noconfirm --needed libreoffice-$lover $lolang"
 fi
 if [ "$frf" = "0" ]
 then arch_chroot "sudo pacman -S --noconfirm firefox  $fflang"
@@ -1399,7 +1416,7 @@ user_password
 changeshell
 kernel
 vbox
-#nvidia
+nvidia
 #pamacaur
 cups
 displaymanager
