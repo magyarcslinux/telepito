@@ -1360,7 +1360,7 @@ fi
 # Xmonad
 
 if [ "$desktops" = "xmonad" ]
-    then arch_chroot "pacman -S --noconfirm --needed xmobar xorg-xmessage gsmartcontrol xdotool thunar scrot rofi "
+    then arch_chroot "pacman -S --noconfirm --needed xmonad-contrib xmonad-utils xmobar xorg-xmessage gsmartcontrol xdotool rxvt-unicode thunar scrot rofi "
         arch_chroot "mkdir -p /home/$username/.xmonad"
         cp /telepito/xmonad/xmonad.hs /mnt/home/$username/.xmonad/
         cp /telepito/xmonad/.xmobarrc /mnt/home/$username/
