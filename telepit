@@ -1112,12 +1112,6 @@ echo "# Csomaglista frissítése..."
 sudo pacman -Syy
 arch_chroot "pacman -Syy"
 
-cd /mnt
-sudo mount -t proc /proc proc/
-sudo mount --rbind /sys sys/
-sudo mount --rbind /dev dev/
-sudo mount --rbind /run run/
-
 
 #Telepítés base
 echo "#Telepítés base..."
