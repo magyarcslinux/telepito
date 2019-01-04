@@ -742,7 +742,7 @@ auto_partition() {
 	zenity --question --title="$title" --height=40 --text "Figyelem! Ez minden törölni fog a  $dev\!\nBiztos folytatni szeretnéd?\nHa igen akkor  \"Yes\"-t  ha megszakítod a telepítést\nakkor  \"No\"-t  válaszd." --height=100 --width=350
         yn="$?"
         
-        lenhos=${#dev}
+        lenhos=` expr length $dev `
         if [ "$lenhos" -gt 8 -a "$SYSTEM" = "BIOS" ]	
 			then root_part=${dev}p1
 
@@ -1110,7 +1110,7 @@ reflector --verbose -l 50 -p http --sort rate --save /etc/pacman.d/mirrorlist
 # Csomaglista frissítése
 echo "# Csomaglista frissítése..."
 sudo pacman -Syy
-arch_chroot "pacman -Syy"
+#arch_chroot "pacman -Syy"
 
 #Telepítés base
 echo "#Telepítés base..."
