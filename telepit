@@ -188,8 +188,8 @@ kswpnofile() {
 
                 # boot
                 if [ "$boot_part" != "Nincs" ]
-                    then mkdir -p /mnt/boot
-                    mount $boot_part /mnt/boot
+                    then mkdir -p /mnt/boot/efi
+                    mount $boot_part /mnt/boot/efi
                 fi
                 # home
                 if [ "$home_part" != "Nincs" ]
@@ -238,7 +238,7 @@ kswpnofile() {
         tr -s '\n' '|' < be.txt > ki.txt
         mylist=` cat ki.txt `
         ellenor $(zenity --forms --text "Ad meg a csatolási pontokat" --add-combo="Csatolási pont (/)" --combo-values="${mylist::-1}" \
-                --add-combo="Csatolási pont (/boot)" --combo-values=$"${mylist::-1}" --add-combo="Csatolási pont (/home)" --combo-values="${mylist::-1}" \
+                --add-combo="Csatolási pont (/boot/efi)" --combo-values=$"${mylist::-1}" --add-combo="Csatolási pont (/home)" --combo-values="${mylist::-1}" \
                 --add-combo="Csatolási pont (/mnt)" --combo-values="${mylist::-1}" --add-combo="Csatolási pont (/opt)" --combo-values="${mylist::-1}" \
                 --add-combo="Csatolási pont (/swap)" --combo-values="${mylist::-1}" --add-combo="Csatolási pont (/srv)" --combo-values="${mylist::-1}" \
                 --add-combo="Csatolási pont (/tmp)" --combo-values="${mylist::-1}" --add-combo="Csatolási pont (/usr)" --combo-values="${mylist::-1}" \
@@ -376,8 +376,8 @@ kswpf() {
 
                     # boot
                     if [ "$boot_part" != "Nincs" ]
-                        then mkdir -p /mnt/boot
-                        mount $boot_part /mnt/boot
+                        then mkdir -p /mnt/boot/efi
+                        mount $boot_part /mnt/boot/efi
                     fi
                     # home
                     if [ "$home_part" != "Nincs" ]
@@ -562,8 +562,8 @@ kswno() {
 
                     # boot
                     if [ "$boot_part" != "Nincs" ]
-                        then mkdir -p /mnt/boot
-                        mount $boot_part /mnt/boot
+                        then mkdir -p /mnt/boot/efi
+                        mount $boot_part /mnt/boot/efi
                     fi
                     # home
                     if [ "$home_part" != "Nincs" ]
@@ -803,8 +803,8 @@ auto_partition() {
 		mkfs.fat -F32 $gpt_part
 		mkfs.ext4 -F $root_part
 		mount $root_part /mnt
-		mkdir -p /mnt/boot
-		mount $gpt_part /mnt/boot
+		mkdir -p /mnt/boot/efi
+		mount $gpt_part /mnt/boot/efi
 		touch /mnt/swapfile
 		dd if=/dev/zero of=/mnt/swapfile bs=1M count=${swap_space}
 		chmod 600 /mnt/swapfile
@@ -1112,6 +1112,7 @@ echo "# Csomaglista frissítése..."
 sudo pacman -Syy
 #arch_chroot "pacman -Syy"
 
+
 #Telepítés base
 echo "#Telepítés base..."
 if [ "$kernel" = "linux" ]
@@ -1300,8 +1301,8 @@ if [ "$grb" = "0" ]
 		echo "# Bootloader telepítés..."
 
         pacstrap /mnt grub efibootmgr
-        #arch_chroot "os-prober"
-        arch_chroot "grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=magyarcslinux"
+        arch_chroot "os-prober"
+        arch_chroot "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=magyarcslinux1 --recheck"
         arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 
 
