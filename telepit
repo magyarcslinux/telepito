@@ -80,13 +80,13 @@ kswpnofile() {
                 root_part=$1
                 boot_part=$2
                 home_part=$3
-                mnt_part=$4
-                opt_part=$5
-                swap_part=$6
-                srv_part=$7
-                tmp_part=$8
-                usr_part=$9
-                var_part=$10
+                #mnt_part=$4
+                opt_part=$4
+                swap_part=$5
+                srv_part=$6
+                tmp_part=$7
+                usr_part=$8
+                var_part=$9
 
 
                 alap=1
@@ -95,10 +95,10 @@ kswpnofile() {
                 
                 nincstolt=0
 
-                echo "$root_part $boot_part $home_part $mnt_part $opt_part $swap_part $srv_part $tmp_part $usr_part $var_part"
+                echo "$root_part $boot_part $home_part $opt_part $swap_part $srv_part $tmp_part $usr_part $var_part"
                 
                 #echo "be for1"
-                for k in { $root_part $boot_part $home_part $mnt_part $opt_part $swap_part $srv_part $usr_part $var_part }
+                for k in { $root_part $boot_part $home_part  $opt_part $swap_part $srv_part $usr_part $var_part }
                 do
                         if [ "$k" == " " ]
                                 then  ((nincstolt++))
@@ -133,7 +133,7 @@ kswpnofile() {
                 fi
 
                 # Hanyszor szerepel a partició
-                for i in { $root_part $boot_part $home_part $mnt_part $opt_part $swap_part $srv_part $tmp_part $usr_part $var_part }
+                for i in { $root_part $boot_part $home_part  $opt_part $swap_part $srv_part $tmp_part $usr_part $var_part }
                 do
                         if [ "$i" == "$root_part" ]
                                 then ((rootszamlal++))
@@ -144,9 +144,7 @@ kswpnofile() {
                         elif [ "$i" == "$home_part" -a "$i" != "Nincs" ]
                                 then ((homeszamlal++))
                         
-                        elif [ "$i" == "$mnt_part" -a "$i" != "Nincs" ]
-                                then ((mntszamlal++))
-                       
+                        
                         elif [ "$i" == "$opt_part" -a "$i" != "Nincs" ]
                                 then ((optszamlal++))
                         
@@ -162,7 +160,7 @@ kswpnofile() {
                         elif [ "$i" == "$usr_part" -a "$i" != "Nincs" ]
                                 then ((usrszamlal++))
                         
-                        elif [ "$i" == "$var_part" -a  "$i" != "Nincs" ]
+                        elif [ "$i" == "$var_part" -a "$i" != "Nincs" ]
                                 then ((varszamlal++))
                         
                         elif [ "$i" == "Nincs" ]
@@ -171,7 +169,7 @@ kswpnofile() {
                         
                done
                 # Dupla van-e...
-                if [ "$rootszamlal" -gt "1" -o "$bootszamlal" -gt "$alap" -o "$homeszamlal" -gt "$alap" -o "$mntszamlal" -gt "$alap" -o "$optszamlal" -gt "$alap" -o "$swapszamlal" -gt "$alap" -o "$srvszamlal" -gt "$alap" -o "$tmpszamlal" -gt "$alap" -o "$usrszamlal" -gt "$alap" -o "$varszamlal" -gt "$alap" ]
+                if [ "$rootszamlal" -gt "1" -o "$bootszamlal" -gt "$alap" -o "$homeszamlal" -gt "$alap" -o "$optszamlal" -gt "$alap" -o "$swapszamlal" -gt "$alap" -o "$srvszamlal" -gt "$alap" -o "$tmpszamlal" -gt "$alap" -o "$usrszamlal" -gt "$alap" -o "$varszamlal" -gt "$alap" ]
                         then 
                                 zenity --error --title="$title" --text "Többször választottad ugyanazt a particiót" --height=100  --width=300
                                 kswpnofile
@@ -196,11 +194,7 @@ kswpnofile() {
                     then mkdir -p /mnt/home
                     mount $home_part /mnt/home
                 fi
-                # mnt
-                if [ "$mnt_part" != "Nincs" ]
-                    then mkdir -p /mnt/mnt/disk_0
-                    mount $mnt_part /mnt/mnt/disk_0
-                fi
+                
                 # opt
                 if [ "$opt_part" != "Nincs" ]
                     then mkdir -p /mnt/opt
@@ -227,8 +221,10 @@ kswpnofile() {
                     mount $var_part /mnt/var
                 fi
                 # swap
-                mkswap $swap_part
-                swapon $swap_part
+                if [ "$var_part" != "Nincs" ]
+                    then mkswap $swap_part
+                    swapon $swap_part
+                fi
                 egyeb_csatolas
 
                 }
@@ -239,7 +235,7 @@ kswpnofile() {
         mylist=` cat ki.txt `
         ellenor $(zenity --forms --text "Ad meg a csatolási pontokat" --add-combo="Csatolási pont (/)" --combo-values="${mylist::-1}" \
                 --add-combo="Csatolási pont (/boot/efi)" --combo-values=$"${mylist::-1}" --add-combo="Csatolási pont (/home)" --combo-values="${mylist::-1}" \
-                --add-combo="Csatolási pont (/mnt)" --combo-values="${mylist::-1}" --add-combo="Csatolási pont (/opt)" --combo-values="${mylist::-1}" \
+                --add-combo="Csatolási pont (/opt)" --combo-values="${mylist::-1}" \
                 --add-combo="Csatolási pont (/swap)" --combo-values="${mylist::-1}" --add-combo="Csatolási pont (/srv)" --combo-values="${mylist::-1}" \
                 --add-combo="Csatolási pont (/tmp)" --combo-values="${mylist::-1}" --add-combo="Csatolási pont (/usr)" --combo-values="${mylist::-1}" \
                 --add-combo="Csatolási pont (/var)" --combo-values="${mylist::-1}")
@@ -357,7 +353,7 @@ kswpf() {
                         
                done
                 # Dubla van-e...
-                if [ "$rootszamlal" -gt "1" -o "$bootszamlal" -gt "$alap" -o "$homeszamlal" -gt "$alap" -o "$mntszamlal" -gt "$alap" -o "$optszamlal" -gt "$alap" -o "$srvszamlal" -gt "$alap" -o "$tmpszamlal" -gt "$alap" -o "$usrszamlal" -gt "$alap" -o "$varszamlal" -gt "$alap" ]
+                if [ "$rootszamlal" -gt "1" -o "$bootszamlal" -gt "$alap" -o "$homeszamlal" -gt "$alap" -o "$optszamlal" -gt "$alap" -o "$srvszamlal" -gt "$alap" -o "$tmpszamlal" -gt "$alap" -o "$usrszamlal" -gt "$alap" -o "$varszamlal" -gt "$alap" ]
                         then 
                         zenity --error --title="$title" --text "Többször választottad ugyanazt a particiót" --height=100  --width=300
                         kswpf
@@ -426,7 +422,7 @@ kswpf() {
         mylist=` cat ki.txt `
         ellenor $(zenity --forms --text "Ad meg a csatolási pontokat" --add-combo="Csatolási pont (/)" --combo-values="${mylist::-1}" \
                 --add-combo="Csatolási pont (/boot)" --combo-values=$"${mylist::-1}" --add-combo="Csatolási pont (/home)" --combo-values="${mylist::-1}" \
-                --add-combo="Csatolási pont (/mnt)" --combo-values="${mylist::-1}" --add-combo="Csatolási pont (/opt)" --combo-values="${mylist::-1}" \
+                --add-combo="Csatolási pont (/opt)" --combo-values="${mylist::-1}" \
                 --add-combo="Csatolási pont (/srv)" --combo-values="${mylist::-1}" --add-combo="Csatolási pont (/tmp)" --combo-values="${mylist::-1}" \
                 --add-combo="Csatolási pont (/usr)" --combo-values="${mylist::-1}" --add-combo="Csatolási pont (/var)" --combo-values="${mylist::-1}")
 }
@@ -1275,7 +1271,7 @@ echo "75"
 # Pamac telepítése
 echo "[magyarcs_repo]" >> /mnt/etc/pacman.conf;echo "SigLevel = Optional TrustAll" >> /mnt/etc/pacman.conf;echo "Server = https://raw.github.com/magyarcslinux/magyarcs_repo/master/x86_64" >> /mnt/etc/pacman.conf
 arch_chroot "pacman -Syy"
-arch_chroot "sudo pacman -S --noconfirm --needed pamac-aur yay-bin inxi glxinfo glew bash-completion feh lxappearance gstreamer gst-plugins-good gst-plugins-bad gst-plugins-base gst-plugins-ugly neofetch tumbler os-prober ddrescue curl git wget vim mousepad mc "
+arch_chroot "sudo pacman -S --noconfirm --needed pamac-aur yay-bin inxi glxinfo glew bash-completion feh lxappearance gstreamer gst-plugins-good gst-plugins-bad gst-plugins-base gst-plugins-ugly neofetch tumbler ddrescue curl git wget vim mousepad mc "
 arch_chroot "pacman -Syy"
 arch_chroot "sudo pacman -S --noconfirm --needed sublime-text-dev arc-gtk-theme "
 
@@ -1301,7 +1297,7 @@ if [ "$grb" = "0" ]
 		echo "# Bootloader telepítés..."
 
         pacstrap /mnt grub efibootmgr
-        arch_chroot "os-prober"
+        #arch_chroot "os-prober"
         arch_chroot "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=magyarcslinux1 --recheck"
         arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 
@@ -1448,7 +1444,7 @@ user_password
 changeshell
 kernel
 vbox
-nvidia
+#nvidia
 #pamacaur
 cups
 displaymanager
