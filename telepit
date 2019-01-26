@@ -5,7 +5,7 @@ man_partition() {
 
 # Particionálás
 # A particionálást a gparted alkalmazással a felhasználó végzi
-zenity --question --title="$title" --height=40 --text "Kell-e particionálni?\nVálassza az  \"Igen\"-t és megnyílik a gparted.\n Particionálja és formázza meg, mert ezt nem végzi el a telepítő." --height=200 --width=500
+zenity --question --title="$title" --height=40 --text "Szükség van partícionálásra?\n\nHa az \"Igen\"-t választja, megnyílik a GParted partícionáló program.\nPartícionálja és formázza meg a merevlemezt, mert ezt nem végzi el a telepítő!" --height=200 --width=500
 if [ "$?" = "0" ]
 	then gparted
         kswp
@@ -18,8 +18,8 @@ fi
 
 
 kswp() {
-        swapker=$(zenity --list --title="$title" --radiolist --text "Válasz a swap lehetőségek közúl." --column '  '  --column Választ FALSE "Swap partició" TRUE "Swap fájl" FALSE "Nincs swap" --height=300 --width=400)
-                if [ "$swapker" = "Swap partició" ]
+        swapker=$(zenity --list --title="$title" --radiolist --text "Válasszon a swap (cserehely) lehetőségek közül!" --column '  '  --column Választ FALSE "Swap partíció" TRUE "Swap fájl" FALSE "Nincs swap" --height=300 --width=400)
+                if [ "$swapker" = "Swap partíció" ]
                         then kswpnofile
                 elif [ "$swapker" = "Swap fájl" ]
                         then 
@@ -37,7 +37,7 @@ kswp() {
 
 kswpfsize() {
 
-        swapsize=$(zenity --list --title="$title" --radiolist --text "Válasz a swap méretet." --column '  '  --column Választ FALSE "1024" TRUE "2048" FALSE "3072" FALSE "4096" --height=300 --width=400)
+        swapsize=$(zenity --list --title="$title" --radiolist --text "Válassza ki a swap (cserehely) méretét!" --column '  '  --column Választ FALSE "1024" TRUE "2048" FALSE "3072" FALSE "4096" --height=300 --width=400)
         if [ "$?" = "0" ]
 
                 then swapfile="yes"
@@ -107,32 +107,32 @@ kswpnofile() {
                 done
 
 
-                # Ha üres valamelyik partició...
+                # Ha üres valamelyik partíció...
                 if [ "$nincstolt" -gt "$alap0" ]
-                        then zenity --error --title="$title" --text "Minden mező kitöltése kötelező!!!\nHa nem akarsz az adott helyre csatolni, válaszd a Nincs lehetőséget" --height=100  --width=300 
+                        then zenity --error --title="$title" --text "Minden mező kitöltése kötelező!\nHa nem szeretne az adott helyre csatolni, válassza a \"Nincs\" lehetőséget!" --height=100  --width=300 
                         kswpnofile
                         return 1
                         fi 
 
                 # Root csatolás nem lehet üres...
                 if [ "$root_part" = "Nincs" ]
-                        then zenity --error --title="$title" --text "Nem választottal root partíciót" --height=100  --width=300
+                        then zenity --error --title="$title" --text "Nem választott root partíciót!" --height=100  --width=300
                         kswpnofile
                         return 1
                 
-                # Ha swap partició ez se lehet üres...
+                # Ha swap partíció, ez se lehet üres...
                 elif   [ "$swap_part" = "Nincs" ]
-                        then zenity --error --title="$title" --text "Nem választottal swap partíciót" --height=100  --width=300
+                        then zenity --error --title="$title" --text "Nem választott swap (cserehely) partíciót!" --height=100  --width=300
                         kswp
                         return 1
 
                 elif [ "$SYSTEM" = "UEFI" -a "$boot_part" = "Nincs" ]
-                        then zenity --error --title="$title" --text "Nem választottal boot partíciót.\nUEFI-ben bootolt a rendszer." --height=100  --width=300
+                        then zenity --error --title="$title" --text "Nem választott boot partíciót!\nUEFI-s telepítéskor szükség van boot partícióra." --height=100  --width=300
                         kswpnofile
                         return 1
                 fi
 
-                # Hanyszor szerepel a partició
+                # Hányszor szerepel a partíció
                 for i in { $root_part $boot_part $home_part  $opt_part $swap_part $srv_part $tmp_part $usr_part $var_part }
                 do
                         if [ "$i" == "$root_part" ]
@@ -171,7 +171,7 @@ kswpnofile() {
                 # Dupla van-e...
                 if [ "$rootszamlal" -gt "1" -o "$bootszamlal" -gt "$alap" -o "$homeszamlal" -gt "$alap" -o "$optszamlal" -gt "$alap" -o "$swapszamlal" -gt "$alap" -o "$srvszamlal" -gt "$alap" -o "$tmpszamlal" -gt "$alap" -o "$usrszamlal" -gt "$alap" -o "$varszamlal" -gt "$alap" ]
                         then 
-                                zenity --error --title="$title" --text "Többször választottad ugyanazt a particiót" --height=100  --width=300
+                                zenity --error --title="$title" --text "Többször választotta ugyanazt a partíciót!" --height=100  --width=300
                                 kswpnofile
                                 return 1
                         fi
@@ -233,7 +233,7 @@ kswpnofile() {
         sudo fdisk -l | grep dev | grep -v Disk | awk '{print $1}' >> be.txt
         tr -s '\n' '|' < be.txt > ki.txt
         mylist=` cat ki.txt `
-        ellenor $(zenity --forms --text "Ad meg a csatolási pontokat" --add-combo="Csatolási pont (/)" --combo-values="${mylist::-1}" \
+        ellenor $(zenity --forms --text "Adja meg a csatolási pontokat!" --add-combo="Csatolási pont (/)" --combo-values="${mylist::-1}" \
                 --add-combo="Csatolási pont (/boot/efi)" --combo-values=$"${mylist::-1}" --add-combo="Csatolási pont (/home)" --combo-values="${mylist::-1}" \
                 --add-combo="Csatolási pont (/opt)" --combo-values="${mylist::-1}" \
                 --add-combo="Csatolási pont (/swap)" --combo-values="${mylist::-1}" --add-combo="Csatolási pont (/srv)" --combo-values="${mylist::-1}" \
@@ -289,32 +289,32 @@ kswpf() {
                 done
 
 
-                # Ha üres valamelyik partició...
+                # Ha üres valamelyik partíció...
                 if [ "$nincstolt" -gt "$alap0" ]
-                        then zenity --error --title="$title" --text "Minden mező kitöltése kötelező!!!\nHa nem akarsz az adott helyre csatolni, válaszd a Nincs lehetőséget" --height=100  --width=300 
+                        then zenity --error --title="$title" --text "Minden mező kitöltése kötelező!\nHa nem szeretne az adott helyre csatolni, válassza a \"Nincs\" lehetőséget!" --height=100  --width=300 
                         kswpf
                         return 1
                         fi 
 
                 # Root csatolás nem lehet üres...
                 if [ "$root_part" = "Nincs" ]
-                        then zenity --error --title="$title" --text "Nem választottal root partíciót" --height=100  --width=300
+                        then zenity --error --title="$title" --text "Nem választott root partíciót!" --height=100  --width=300
                         kswpf
                         return 1
                 
-                # Ha swap partició ez se lehet üres...
+                # Ha swap partíció, ez se lehet üres...
                 #elif   [ "$swap_part" = "Nincs" ]
-                #        then zenity --error --title="$title" --text "Nem választottal swap partíciót" --height=100  --width=300
+                #        then zenity --error --title="$title" --text "Nem választott swap partíciót!" --height=100  --width=300
                 #        kswp
                 #        return 1
 
                 elif [ "$SYSTEM" = "UEFI" -a "$boot_part" = "Nincs" ]
-                        then zenity --error --title="$title" --text "Nem választottal boot partíciót.\nUEFI-ben bootolt a rendszer." --height=100  --width=300
+                        then zenity --error --title="$title" --text "Nem választott boot partíciót!\nUEFI-s telepítéskor szükség van boot partícióra." --height=100  --width=300
                         kswpf
                         return 1
                 fi
 
-                # Hanyszor szerepel a partició
+                # Hányszor szerepel a partíció
                 for i in { $root_part $boot_part $home_part $mnt_part $opt_part $srv_part $tmp_part $usr_part $var_part }
                 do
                         if [ "$i" == "$root_part" ]
@@ -352,10 +352,10 @@ kswpf() {
                         fi
                         
                done
-                # Dubla van-e...
+                # Dupla van-e...
                 if [ "$rootszamlal" -gt "1" -o "$bootszamlal" -gt "$alap" -o "$homeszamlal" -gt "$alap" -o "$optszamlal" -gt "$alap" -o "$srvszamlal" -gt "$alap" -o "$tmpszamlal" -gt "$alap" -o "$usrszamlal" -gt "$alap" -o "$varszamlal" -gt "$alap" ]
                         then 
-                        zenity --error --title="$title" --text "Többször választottad ugyanazt a particiót" --height=100  --width=300
+                        zenity --error --title="$title" --text "Többször választotta ugyanazt a partíciót!" --height=100  --width=300
                         kswpf
                         return 1
                     fi
@@ -420,7 +420,7 @@ kswpf() {
         sudo fdisk -l | grep dev | grep -v Disk | awk '{print $1}' >> be.txt
         tr -s '\n' '|' < be.txt > ki.txt
         mylist=` cat ki.txt `
-        ellenor $(zenity --forms --text "Ad meg a csatolási pontokat" --add-combo="Csatolási pont (/)" --combo-values="${mylist::-1}" \
+        ellenor $(zenity --forms --text "Adja meg a csatolási pontokat!" --add-combo="Csatolási pont (/)" --combo-values="${mylist::-1}" \
                 --add-combo="Csatolási pont (/boot)" --combo-values=$"${mylist::-1}" --add-combo="Csatolási pont (/home)" --combo-values="${mylist::-1}" \
                 --add-combo="Csatolási pont (/opt)" --combo-values="${mylist::-1}" \
                 --add-combo="Csatolási pont (/srv)" --combo-values="${mylist::-1}" --add-combo="Csatolási pont (/tmp)" --combo-values="${mylist::-1}" \
@@ -475,32 +475,32 @@ kswno() {
                 done
 
 
-                # Ha üres valamelyik partició...
+                # Ha üres valamelyik partíció...
                 if [ "$nincstolt" -gt "$alap0" ]
-                        then zenity --error --title="$title" --text "Minden mező kitöltése kötelező!!!\nHa nem akarsz az adott helyre csatolni, válaszd a Nincs lehetőséget" --height=100  --width=300 
+                        then zenity --error --title="$title" --text "Minden mező kitöltése kötelező!\nHa nem szeretne az adott helyre csatolni, válassza a \"Nincs\" lehetőséget!" --height=100  --width=300 
                         kswno
                         return 1
                         fi 
 
                 # Root csatolás nem lehet üres...
                 if [ "$root_part" = "Nincs" ]
-                        then zenity --error --title="$title" --text "Nem választottal root partíciót" --height=100  --width=300
+                        then zenity --error --title="$title" --text "Nem választott root partíciót!" --height=100  --width=300
                         kswno
                         return 1
                 
-                # Ha swap partició ez se lehet üres...
+                # Ha swap partició, ez se lehet üres...
                 #elif   [ "$swap_part" = "Nincs" ]
-                #        then zenity --error --title="$title" --text "Nem választottal swap partíciót" --height=100  --width=300
+                #        then zenity --error --title="$title" --text "Nem választott swap partíciót!" --height=100  --width=300
                 #        kswp
                 #        return 1
 
                 elif [ "$SYSTEM" = "UEFI" -a "$boot_part" = "Nincs" ]
-                        then zenity --error --title="$title" --text "Nem választottal boot partíciót.\nUEFI-ben bootolt a rendszer." --height=100  --width=300
+                        then zenity --error --title="$title" --text "Nem választott boot partíciót!\nUEFI-s telepítéskor szükség van boot partícióra." --height=100  --width=300
                         kswno
                         return 1
                 fi
 
-                # Hanyszor szerepel a partició
+                # Hányszor szerepel a partíció
                 for i in { $root_part $boot_part $home_part $mnt_part $opt_part $srv_part $tmp_part $usr_part $var_part }
                 do
                         if [ "$i" == "$root_part" ]
@@ -538,10 +538,10 @@ kswno() {
                         fi
                         
                done
-                # Dubla van-e...
+                # Dupla van-e...
                 if [ "$rootszamlal" -gt "1" -o "$bootszamlal" -gt "$alap" -o "$homeszamlal" -gt "$alap" -o "$mntszamlal" -gt "$alap" -o "$optszamlal" -gt "$alap" -o "$srvszamlal" -gt "$alap" -o "$tmpszamlal" -gt "$alap" -o "$usrszamlal" -gt "$alap" -o "$varszamlal" -gt "$alap" ]
                         then 
-                            zenity --error --title="$title" --text "Többször választottad ugyanazt a particiót" --height=100  --width=300
+                            zenity --error --title="$title" --text "Többször választotta ugyanazt a partíciót!" --height=100  --width=300
                             kswno
                             return 1
                     fi
@@ -604,7 +604,7 @@ kswno() {
         sudo fdisk -l | grep dev | grep -v Disk | awk '{print $1}' >> be.txt
         tr -s '\n' '|' < be.txt > ki.txt
         mylist=` cat ki.txt `
-        ellenor $(zenity --forms --text "Ad meg a csatolási pontokat" --add-combo="Csatolási pont (/)" --combo-values="${mylist::-1}" \
+        ellenor $(zenity --forms --text "Adja meg a csatolási pontokat!" --add-combo="Csatolási pont (/)" --combo-values="${mylist::-1}" \
                 --add-combo="Csatolási pont (/boot)" --combo-values=$"${mylist::-1}" --add-combo="Csatolási pont (/home)" --combo-values="${mylist::-1}" \
                 --add-combo="Csatolási pont (/mnt)" --combo-values="${mylist::-1}" --add-combo="Csatolási pont (/opt)" --combo-values="${mylist::-1}" \
                 --add-combo="Csatolási pont (/srv)" --combo-values="${mylist::-1}" --add-combo="Csatolási pont (/tmp)" --combo-values="${mylist::-1}" \
@@ -618,7 +618,7 @@ kswno() {
 egyeb_csatolas() {
 
     # Egyéb particó csatolása
-    zenity --question --title="$title" --text "Szeretnél külön csatolni egyéb patriciót?" --height=100 --width=300
+    zenity --question --title="$title" --text "Szeretne külön csatolni további partíciót?" --height=100 --width=300
         if [ "$?" = "0" ]
         then 
             csatolasom
@@ -653,14 +653,14 @@ csatolasom() {
 
 
 
-                # Ha üres valamelyik partició...
+                # Ha üres valamelyik partíció...
                 if [ "$nincstolt" -gt "0" ]
-                        then zenity --error --title="$title" --text "Minden mező kitöltése kötelező!!!\nHa nem akarsz az adott helyre csatolni, válaszd a Nincs lehetőséget" --height=100  --width=300 
+                        then zenity --error --title="$title" --text "Minden mező kitöltése kötelező!\nHa nem szeretne az adott helyre csatolni, válassza a \"Nincs\" lehetőséget!" --height=100  --width=300 
                         csatolasom
                         return 1
                         fi 
 
-                    # Hanyszor szerepel a partició
+                    # Hányszor szerepel a partíció
                 for i in { $disk1 $disk2 $disk3 }
                 do
                         if [ "$i" = "$disk1" -a "$i" != "Nincs" ]
@@ -682,7 +682,7 @@ csatolasom() {
 
                if [ "$disk1szamlal" -gt "1" -o "$disk2szamlal" -gt "1" -o "$disk3szamlal" -gt "1" ]
                         then 
-                            zenity --error --title="$title" --text "Többször választottad ugyanazt a particiót" --height=100  --width=300
+                            zenity --error --title="$title" --text "Többször választotta ugyanazt a partíciót!" --height=100  --width=300
                             csatolasom
                             return 1
                     fi
@@ -708,7 +708,7 @@ csatolasom() {
     sudo fdisk -l | grep dev | grep -v Disk | awk '{print $1}' >> csatol.txt
     tr -s '\n' '|' < csatol.txt > csatolki.txt
     mylist=` cat csatolki.txt `
-    ellenor $(zenity --forms --text "Egyéb meghajtók csatolása." --add-combo="Csatolási pont (/mnt/disk1)" --combo-values="${mylist::-1}" \
+    ellenor $(zenity --forms --text "További partíciók csatolása" --add-combo="Csatolási pont (/mnt/disk1)" --combo-values="${mylist::-1}" \
     --add-combo="Csatolási pont (/mnt/disk2)" --combo-values=$"${mylist::-1}" --add-combo="Csatolási pont (/mnt/disk3)" --combo-values="${mylist::-1}")
     
   
@@ -723,7 +723,7 @@ csatolasom() {
 
 
 
-# Automatikus particionálás
+# Automatikus partícionálás
 auto_partition() {
 	list=` lsblk -lno NAME,TYPE,SIZE,MOUNTPOINT | grep "disk" `
 
@@ -733,9 +733,9 @@ auto_partition() {
 	sed -i 's/\<disk\>//g' devices.txt
 	devices=` awk '{print "FALSE " $0}' devices.txt `
 
-	dev=$(zenity --list --title="$title" --radiolist --text "Válassza ki hová szeretne telepíteni." --column Drive --column Info $devices)
+	dev=$(zenity --list --title="$title" --radiolist --text "Válassza ki, hogy hová szeretne telepíteni!" --column Drive --column Info $devices)
 
-	zenity --question --title="$title" --height=40 --text "Figyelem! Ez minden törölni fog a  $dev\!\nBiztos folytatni szeretnéd?\nHa igen akkor  \"Yes\"-t  ha megszakítod a telepítést\nakkor  \"No\"-t  válaszd." --height=100 --width=350
+	zenity --question --title="$title" --height=40 --text "FIGYELEM!\nEz MINDEN adatot törölni fog itt:  $dev\!\nBiztosan folytatni szeretné?\n\nHa igen, akkor válassza az \"Igen\"-t!\nHa inkább megszakítaná a telepítést,\nakkor válassza a \"Nem\"-et!" --height=100 --width=350
         yn="$?"
         
         lenhos=` expr length $dev `
@@ -776,7 +776,7 @@ auto_partition() {
 	#BIOS vagy UEFI
     if [ "$SYSTEM" = "BIOS" ]
         then
-	       (echo "# BIOS partició létrehozása..."
+	       (echo "# BIOS partíció létrehozása..."
 	        dd if=/dev/zero of=$dev bs=512 count=1
 	        Parted "mklabel msdos"
 	        Parted "mkpart primary ext4 1MiB 100%"
@@ -790,7 +790,7 @@ auto_partition() {
 		swapon /mnt/swapfile
 		swapfile="yes") | zenity --progress --title="$title" --width=450 --pulsate --auto-close --no-cancel
 	    else
-            	(echo "# UEFI partició létrehozása..."
+            	(echo "# UEFI partíció létrehozása..."
             	dd if=/dev/zero of=$dev bs=512 count=1
             	Parted "mklabel gpt"
             	Parted "mkpart primary fat32 1MiB 513MiB"
@@ -816,10 +816,10 @@ auto_partition() {
 
 
 
-# Particionálás
+# Partícionálás
 partition() {
-	ans=$(zenity --list --title="$title" --radiolist --text "Szeretné használni az automatikus partícionálást?\nVagy szeretné partíciót létrehozni a lemezen magad?\nAutomatikus partícionálás teljesen törli az Ön által kiválasztott\n meghajtót és telepíti az Arch rendszert." --column '  '  --column Választ FALSE "Automatikus particionálás" FALSE "Kézi particionálás" --height=300 --width=400)
-	if [ "$ans" = "Automatikus particionálás" ]
+	ans=$(zenity --list --title="$title" --radiolist --text "Szeretné használni az automatikus partícionálást,\nvagy Ön szeretné létrehozni a partíciókat a merevlemezen?\nAz automatikus partícionálás teljesen törli az Ön által \n kiválasztott meghajtót és telepíti az Arch rendszert." --column '  '  --column Választ FALSE "Automatikus partícionálás" FALSE "Kézi partícionálás" --height=300 --width=400)
+	if [ "$ans" = "Automatikus partícionálás" ]
 	then auto_partition
 	else
 	man_partition
@@ -833,22 +833,22 @@ configure() {
 # Nyelv  kiválasztása
 locales=$(cat /etc/locale.gen | grep -v "#  " | sed 's/#//g' | sed 's/ UTF-8//g' | grep .UTF-8 | sort | awk '{ printf "FALSE ""\0"$0"\0" }')
 
-locale=$(zenity --list --title="$title" --radiolist --text "Válasza ki a nyelvet." --column Jelöl --column Nyelv $locales --height=350 --width=300)
+locale=$(zenity --list --title="$title" --radiolist --text "Válasszon nyelvet!" --column Jelöl --column Nyelv $locales --height=350 --width=300)
 
-zenity --question --title="$title" --height=40 --text="szeretné megváltoztatni a billentyűzet modelljét?\nAlapértelmezés szerint a pc101." --height=150 --width=300
+zenity --question --title="$title" --height=40 --text="szeretné megváltoztatni a billentyűzet modelljét?\nAlapértelmezés szerint ez \"pc101\"." --height=150 --width=300
 mod="$?"
 
 if [ "$mod" = "0" ]
-then model=$(zenity --list --title="$title" --radiolist --text="Válassza ki a billentyűzetet" --column Jelöl --column Model $(localectl list-x11-keymap-models | awk '{ printf " FALSE ""\0"$0"\0" }'))
+then model=$(zenity --list --title="$title" --radiolist --text="Válassza ki a billentyűzetet!" --column Jelöl --column Model $(localectl list-x11-keymap-models | awk '{ printf " FALSE ""\0"$0"\0" }'))
 fi
 
-layout=$(zenity --list --title="$title" --radiolist --text="Válasza ki a bilentyűzet kiosztását" --column Jelöl --column Elrendezés $(localectl list-x11-keymap-layouts | awk '{ printf " FALSE ""\0"$0"\0" }'))
+layout=$(zenity --list --title="$title" --radiolist --text="Válassza ki a billentyűzet kiosztását!" --column Jelöl --column Elrendezés $(localectl list-x11-keymap-layouts | awk '{ printf " FALSE ""\0"$0"\0" }'))
 
 zenity --question --title="$title" --height=40 --text="Szeretné megváltoztatni billentyűzetváltozatát?" --height=100 --width=300
 vary="$?"
 
 if [ "$vary" = "0" ]
-then variant=$(zenity --list --title="$title" --radiolist --text="Válassza ki a kívánt változatot" --column Jelöl --column Változat $(localectl list-x11-keymap-variants | awk '{ printf " FALSE ""\0"$0"\0" }'))
+then variant=$(zenity --list --title="$title" --radiolist --text="Válassza ki a kívánt változatot!" --column Jelöl --column Változat $(localectl list-x11-keymap-variants | awk '{ printf " FALSE ""\0"$0"\0" }'))
 fi
 
 setxkbmap $layout
@@ -863,25 +863,25 @@ fi
 # Időzóna lekérése
 zones=$(cat /usr/share/zoneinfo/zone.tab | awk '{print $3}' | grep "/" | sed "s/\/.*//g" | sort -ud | sort | awk '{ printf " FALSE ""\0"$0"\0" }')
 
-zone=$(zenity --list --title="$title" --radiolist --text "Válaszon időzóna földrészt." --column Jelöl --column Zóna $zones --height=350 --width=300)
+zone=$(zenity --list --title="$title" --radiolist --text "Válassza ki a tartózkodási helyét!" --column Jelöl --column Zóna $zones --height=350 --width=300)
 
 subzones=$(cat /usr/share/zoneinfo/zone.tab | awk '{print $3}' | grep "$zone/" | sed "s/$zone\///g" | sort -ud | sort | awk '{ printf " FALSE ""\0"$0"\0" }')
 
-subzone=$(zenity --list --title="$title" --radiolist --text "Válasz zónát" --column Jelöl --column Zóna $subzones --height=350 --width=300)
+subzone=$(zenity --list --title="$title" --radiolist --text "Válassza ki a tartózkodási helyét!" --column Jelöl --column Zóna $subzones --height=350 --width=300)
 
 # Idő beállítás
-clock=$(zenity --list --title="$title" --radiolist --text "UTC vagy helyi idő használata.\nUTC az ajánlott." --column Jelöl --column Idő TRUE utc FALSE localtime)
+clock=$(zenity --list --title="$title" --radiolist --text "UTC vagy helyi idő használata\nUTC az ajánlott." --column Jelöl --column Idő TRUE utc FALSE localtime)
 
-# Beállítás hostnév, felhasználónév, root jelszó, és a felhasználó jelszó
-hname=$(zenity --entry --title="$title" --text "Írja be a rendszer nevét.\nCsak kisbetüket használj." --entry-text "magyarcslinux" --width=300)
-username=$(zenity --entry --title="$title" --text "Írja be a felhasználónevet.\nCsak kisbetük az elfogadottak." --entry-text "user" --width=300)
+# Beállítás hostnév, felhasználónév, root jelszó, és a felhasználói jelszó
+hname=$(zenity --entry --title="$title" --text "Írja be a rendszer nevét!\nCsak kisbetűket használjon." --entry-text "magyarcslinux" --width=300)
+username=$(zenity --entry --title="$title" --text "Írja be a felhasználónevet!\nCsak kisbetűk az elfogadottak." --entry-text "felhasznalo" --width=300)
 }
 
-# Virtuálbox
+# VirtualBox
 vbox() {
 graphics=$(lspci | grep -i "vga" | sed 's/.*://' | sed 's/(.*//' | sed 's/^[ \t]*//')
 if [[ $(echo $graphics | grep -i 'virtualbox') != "" ]]
-	then zenity --question --title="$title" --height=40 --text "A telepítő észlelte, hogy Virtualbox-ban fut.\nSzeretné telepíteni a Virtualbox segéd-alkalmazásait?" --height=100 --width=400
+	then zenity --question --title="$title" --height=40 --text "A telepítő észlelte, hogy Virtualboxban fut.\nSzeretné telepíteni a Virtualbox segéd-alkalmazásait?" --height=100 --width=400
 vb="$?"
 fi
 }
@@ -892,9 +892,9 @@ graphics=$(lspci | grep -i "vga" | sed 's/.*://' | sed 's/(.*//' | sed 's/^[ \t]
 card=$(lspci -k | grep -A 2 -E "(VGA|3D)")
 
 if [[ $(echo $card | grep -i 'nvidia') != "" ]]
-	then zenity --question --title="$title" --height=40 --text "A telepítő észlelte, hogy NVIDIA grafikus kártyát használ.\nSzeretné telepíteni a megfelelő driver-t?" --height=100 --width=400
+	then zenity --question --title="$title" --height=40 --text "A telepítő észlelte, hogy NVIDIA grafikus kártyát használ.\nSzeretné telepíteni a megfelelő drivert?" --height=100 --width=400
 		if [ "$?" = "0" ]
-			then video=$(zenity --list --height=400 --title="$title" --text "Meg kell tudnia, hogy az NVIDIA grafikus kártya melyik modelljét használja.\nAz NVIDIA 400 sorozat és újabb esetén telepítse az nvidia és az nvidia-libgl.\n\nA 8000-9000 vagy 100-300 sorozat esetén az nvidia-340xx és nvidia-340xx-libgl.\n\nJelenlegi kártyád:\n$card\n\nVálasz az NVIDIA drivere-ek közül amelyiket telepíteni akarod." --radiolist --column Jelöl --column Driver FALSE "nvidia" FALSE "nvidia-390xx" FALSE "nvidia-340xx" --height=350 --width=550)
+			then video=$(zenity --list --height=400 --title="$title" --text "Meg kell tudnia, hogy az NVIDIA grafikus kártya melyik modelljét használja.\nAz NVIDIA 400 sorozat és újabb esetén telepítse az nvidia és az nvidia-libgl csomagokat.\n\nA 8000-9000 vagy 100-300 sorozat esetén az nvidia-340xx és nvidia-340xx-libgl a jó választás.\n\nJelenlegi kártyája:\n$card\n\nMelyik NVIDIA drivert szeretné telepíteni?" --radiolist --column Jelöl --column Driver FALSE "nvidia" FALSE "nvidia-390xx" FALSE "nvidia-340xx" --height=350 --width=550)
 			else video="mesa"
 		fi
 	else video="mesa"
@@ -906,7 +906,7 @@ fi
 
 # kernel
 kernel() {
-kernel=$(zenity --list --title="$title" --height=550 --text "Választhat több kernel-ből.\n\nLegfrisebb a linux kernel.\nEbben találjuk a legtöbb hardver támogatást.\nDe ebben található a legtöbb hiba.\n\nA linux-lts kernel stabilitásra épül.\nRégebbi kernelre épül, és nem tartalmazza az újításokat.\n\nA linux-hardened kernel biztonságra épül\nTartalmaz Grsecurity Patchset és PaX a biztonság érdekében.\n\nA linux-zen kernel fejlesztői változat.\Nem ajánlott mindenapi használatra.\n\nVálaszon melyik kernel-t szeretné telepíteni." --radiolist --column Jelöl --column "Kernel" FALSE linux FALSE linux-lts FALSE linux-hardened FALSE linux-zen)
+kernel=$(zenity --list --title="$title" --height=550 --text "Itt több kernelből választhat.\n\nA legfrissebb a \"linux\" kernel.\n Ebben található a legtöbb hardver támogatás,\n de ebben található a legtöbb hiba is.\n\nA \"linux-lts\" kernel stabilabb.\n Régebbi kernelre épül, és nem tartalmazza az újításokat.\n\nA \"linux-hardened\" kernel biztonságra épül.\n Tartalmaz Grsecurity patch-készletet, és PaX-et a biztonság érdekében.\n\nA \"linux-zen\" kernel fejlesztői változat.\n Nem ajánlott mindennapi használatra.\n\nVálassza ki, hogy melyik kernelt szeretné telepíteni!" --radiolist --column Jelöl --column "Kernel" FALSE linux FALSE linux-lts FALSE linux-hardened FALSE linux-zen)
 }
 
 # root jelszó
@@ -918,19 +918,19 @@ function rootpass {
     rtpasswd2=$2
 
     if [ "$rtpasswd" != "$rtpasswd2" ]
-                then zenity --error --title="$title" --text "Jelszavak nem egyeznek, próbálja újra." --height=100  --width=300
+                then zenity --error --title="$title" --text "A jelszavak nem egyeznek, próbálja újra!" --height=100  --width=300
                 root_password
         fi
 }
 
-rootpass $(zenity --forms --text "Írd be a használni kívánt root jelszót."  --add-password="Jelszó" --add-password="Jelszó megerősítés")
+rootpass $(zenity --forms --text "Írja be a használni kívánt root jelszót!"  --add-password="Jelszó:" --add-password="Jelszó megerősítés:")
 }
 
 
-#rtpasswd=$(zenity --entry --title="$title" --text "Írd be a használni kívánt root jelszót." --hide-text)
-#rtpasswd2=$(zenity --entry --title="$title" --text "Írd be újra a root jelszót." --hide-text)
+#rtpasswd=$(zenity --entry --title="$title" --text "Írja be a használni kívánt root jelszót!" --hide-text)
+#rtpasswd2=$(zenity --entry --title="$title" --text "Írja be újra a root jelszót!" --hide-text)
 #	if [ "$rtpasswd" != "$rtpasswd2" ]
-#		then zenity --error --title="$title" --text "Jelszavak nem egyeznek, próbálja újra." --height=100  --width=300
+#		then zenity --error --title="$title" --text "A jelszavak nem egyeznek, próbálja újra!" --height=100  --width=300
 #		root_password
 #	fi
 #}
@@ -945,16 +945,16 @@ function rootpass {
     userpasswd2=$2
 
     if [ "$userpasswd" != "$userpasswd2" ]
-                then zenity --error --title="$title" --text "Jelszavak nem egyeznek, próbálja újra." --height=100  --width=300
+                then zenity --error --title="$title" --text "A jelszavak nem egyeznek, próbálja újra!" --height=100  --width=300
                 user_password
         fi
 }
 
-rootpass $(zenity --forms --text "Ad meg a $username jelszavát."  --add-password="Jelszó" --add-password="Jelszó megerősítés")
+rootpass $(zenity --forms --text "Adja meg $username jelszavát!"  --add-password="Jelszó:" --add-password="Jelszó megerősítés:")
 }
 
-#userpasswd=$(zenity --entry --title="$title" --text "Ad meg a $username jelszavát." --hide-text)
-#userpasswd2=$(zenity --entry --title="$title" --text "Ismételd meg a $username jelszavát." --hide-text)
+#userpasswd=$(zenity --entry --title="$title" --text "Adja meg $username jelszavát!" --hide-text)
+#userpasswd2=$(zenity --entry --title="$title" --text "Ismételje meg a $username jelszavát!" --hide-text)
 #	if [ "$userpasswd" != "$userpasswd2" ]
 #		then zenity --error --title="$title" --text "Jelszavak nem egyeznek, próbálja újra" --height=100 --width=300
 #		user_password
@@ -966,7 +966,7 @@ changeshell() {
 
 IFS=$oldifs
 
-shell=$(zenity --list --title="$title" --radiolist --text "Milyen sell-t szeretne használni?" --column Jelöl --column Választ FALSE bash FALSE zsh FALSE fish --height=220 --width=300)
+shell=$(zenity --list --title="$title" --radiolist --text "Milyen shellt szeretne használni?\n\nLegtöbbször a 'bash'-t használják." --column Jelöl --column Választ FALSE bash FALSE zsh FALSE fish --height=220 --width=300)
 }
 
 # Nyomtató
@@ -977,16 +977,16 @@ cp="$?"
 
 # Asztali felület
 desktop() {
-desktops=$(zenity --list --height=550 --width=450 --title="$title" --radiolist --text="Válasz asztali felületet." --column '   ' --column Asztal FALSE "gnome" FALSE "gnome gnome-extra" FALSE "plasma" FALSE "plasma kde-applications" FALSE "xfce4" FALSE "xfce4 xfce4-goodies" FALSE "lxde" FALSE "lxqt" FALSE "mate" FALSE "mate mate-extra" FALSE "budgie-desktop" FALSE "cinnamon" FALSE "deepin" FALSE "enlightenment" FALSE "jwm" FALSE "bspwm" FALSE "qtile" FALSE "i3" FALSE "xmonad" )
-if [ "$desktops" = "Egyéb nem ajánlott" ]
-then zenity --list --title="$title" --text="Nézd meg ezeket. A következőben kiválaszthatod." --column Nézet --width=450 --height=550 "$(pacman -Ss window manager)"
-wm=$(zenity --list --radiolist --column Jelöl --column Desktop --height=550 --width=450 --title="$title" --radiolist --text="Válasz tetszés szerint." $(pacman -Ssq window manager | awk '{ printf " FALSE ""\0"$0"\0" }'))
+desktops=$(zenity --list --height=550 --width=450 --title="$title" --radiolist --text="Válasszon asztali felületet!" --column '   ' --column Asztal FALSE "gnome" FALSE "gnome gnome-extra" FALSE "plasma" FALSE "plasma kde-applications" FALSE "xfce4" FALSE "xfce4 xfce4-goodies" FALSE "lxde" FALSE "lxqt" FALSE "mate" FALSE "mate mate-extra" FALSE "budgie-desktop" FALSE "cinnamon" FALSE "deepin" FALSE "enlightenment" FALSE "jwm" FALSE "bspwm" FALSE "qtile" FALSE "i3" FALSE "xmonad" )
+if [ "$desktops" = "Egyéb, nem ajánlott" ]
+then zenity --list --title="$title" --text="Nézze meg ezeket. A következőkben kiválaszthatja." --column Nézet --width=450 --height=550 "$(pacman -Ss window manager)"
+wm=$(zenity --list --radiolist --column Jelöl --column Desktop --height=550 --width=450 --title="$title" --radiolist --text="Válasszon tetszés szerint!" $(pacman -Ssq window manager | awk '{ printf " FALSE ""\0"$0"\0" }'))
 fi
 }
 
 # Inditásvezérlő
 displaymanager() {
-dm=$(zenity --list --title="$title" --radiolist --text "Milyen inditásvezérlőt szeretnél?" --column Jelöl --column Megjelenítő FALSE "lightdm" FALSE "lxdm" FALSE "sddm" FALSE "gdm" FALSE "Alapértelmezett" --height=250 --width=300)
+dm=$(zenity --list --title="$title" --radiolist --text "Milyen indításvezérlőt szeretne?" --column Jelöl --column Megjelenítő FALSE "lightdm" FALSE "lxdm" FALSE "sddm" FALSE "gdm" FALSE "Alapértelmezett" --height=250 --width=300)
 }
 
 # Pamac
@@ -997,60 +997,60 @@ pa="$?"
 
 # Biztonsági alkalmazások
 bizt_apps() {
-zenity --list --title="$title" --text "Válasza ki mit szeretne telepíteni" --checklist --column Jelöl --column Alkalmazás FALSE "keepassx2 " FALSE "veracrypt " FALSE "gufw " FALSE "clamav " FALSE "clamtk " --height=400 --width=400 > bizt2.txt
+zenity --list --title="$title" --text "Válassza ki, hogy mit szeretne telepíteni!" --checklist --column Jelöl --column Alkalmazás FALSE "keepassx2 " FALSE "veracrypt " FALSE "gufw " FALSE "clamav " FALSE "clamtk " --height=400 --width=400 > bizt2.txt
 sed -i -e 's/[|]//g' bizt2.txt
 }
 
 
 # internetes alkalmazások
 internet_apps() {
-zenity --list --title="$title" --text "Válasza ki mit szeretne telepíteni" --checklist --column Jelöl --column Alkalmazás FALSE "chromium " FALSE "midori " FALSE "netsurf " FALSE "filezilla " FALSE "opera " FALSE "evolution " FALSE "geary " FALSE "thunderbird " FALSE "transmission-gtk " FALSE "transmission-qt " FALSE "qbittorrent " FALSE "rtorrent " FALSE "hexchat " FALSE "vivaldi-snapshot " --height=400 --width=400 > int2.txt
+zenity --list --title="$title" --text "Válassza ki, hogy mit szeretne telepíteni!" --checklist --column Jelöl --column Alkalmazás FALSE "chromium " FALSE "midori " FALSE "netsurf " FALSE "filezilla " FALSE "opera " FALSE "evolution " FALSE "geary " FALSE "thunderbird " FALSE "transmission-gtk " FALSE "transmission-qt " FALSE "qbittorrent " FALSE "rtorrent " FALSE "hexchat " FALSE "vivaldi-snapshot " --height=400 --width=400 > int2.txt
 sed -i -e 's/[|]//g' int2.txt
 }
 
 # media alkalmazás-lista
 media_apps() {
-zenity --list --title="$title" --text "Válasz a telepíteni kívánt média alkalmazásokból" --checklist --column Jelöl --column Alkalmazás FALSE "kodi " FALSE "gimp " FALSE "vlc " FALSE "totem " FALSE "parole " FALSE "audacious " FALSE "clementine " FALSE "gthumb " FALSE "shotwell " FALSE "ristretto " FALSE "gpicview " FALSE "brasero " FALSE "audacity " FALSE "simplescreenrecorder " FALSE "xfburn " FALSE "kdenlive " --height=400 --width=400 > med2.txt
+zenity --list --title="$title" --text "Válasszon a telepíteni kívánt média alkalmazásokból!" --checklist --column Jelöl --column Alkalmazás FALSE "kodi " FALSE "gimp " FALSE "vlc " FALSE "totem " FALSE "parole " FALSE "audacious " FALSE "clementine " FALSE "gthumb " FALSE "shotwell " FALSE "ristretto " FALSE "gpicview " FALSE "brasero " FALSE "audacity " FALSE "simplescreenrecorder " FALSE "xfburn " FALSE "kdenlive " --height=400 --width=400 > med2.txt
 sed -i -e 's/[|]//g' med2.txt
 }
 
 # Irodai alkalmazások
 office_apps() {
-zenity --list --title="$title" --text "Válasz a telepíteni kívánt irodai alkalmazásokból" --checklist --column Jelöl --column Alkalmazás FALSE "calligra " FALSE "abiword " FALSE "gnumeric " FALSE "pdfmod " FALSE "evince " FALSE "epdfview " FALSE "calibre " FALSE "fbreader " --height=400 --width=400 > off2.txt
+zenity --list --title="$title" --text "Válasszon a telepíteni kívánt irodai alkalmazásokból!" --checklist --column Jelöl --column Alkalmazás FALSE "calligra " FALSE "abiword " FALSE "gnumeric " FALSE "pdfmod " FALSE "evince " FALSE "epdfview " FALSE "calibre " FALSE "fbreader " --height=400 --width=400 > off2.txt
 sed -i -e 's/[|]//g' off2.txt
 }
 
 # Hasznos alkalmazások
 utility_apps() {
-zenity --list --title="$title" --text "Válasz a listából" --checklist --column Választ --column Alkalmazás FALSE "htop " FALSE "terminator " FALSE "gnome-disk-utility " FALSE "gparted " FALSE "synapse " FALSE "virtualbox " FALSE "redshift " FALSE "leafpad " FALSE "geany " FALSE "parcellite " FALSE "grsync " FALSE "guake " FALSE "ntfs-3g " FALSE "btrfs-progs " FALSE "gptfdisk " --height=400 --width=400 > utils.txt
+zenity --list --title="$title" --text "Válasszon az alábbi listából!" --checklist --column Választ --column Alkalmazás FALSE "htop " FALSE "terminator " FALSE "gnome-disk-utility " FALSE "gparted " FALSE "synapse " FALSE "virtualbox " FALSE "redshift " FALSE "leafpad " FALSE "geany " FALSE "parcellite " FALSE "grsync " FALSE "guake " FALSE "ntfs-3g " FALSE "btrfs-progs " FALSE "gptfdisk " --height=400 --width=400 > utils.txt
 sed -i -e 's/[|]//g' utils.txt
 }
 
 # Játékosoknak
 jatek_apps() {
-zenity --list --title="$title" --text "Válasz a listából" --checklist --column Választ --column Alkalmazás FALSE "steam " FALSE "playonlinux " FALSE "lutris " --height=400 --width=400 > jatek.txt
+zenity --list --title="$title" --text "Válasszon az alábbi listából!" --checklist --column Választ --column Alkalmazás FALSE "steam " FALSE "playonlinux " FALSE "lutris " --height=400 --width=400 > jatek.txt
 sed -i -e 's/[|]//g' jatek.txt
 }
 
 # Kiegészitők
 kiegeszit_apps() {
-zenity --list --title="$title" --text "Válasz a listából" --checklist --column Választ --column Alkalmazás FALSE "discord " FALSE "paper-gtk-theme-git " FALSE "numix-gtk-theme " FALSE "faenza-icon-theme " FALSE "arc-icon-theme " FALSE "papirus-icon-theme " FALSE "ttf-ubuntu-font-family " FALSE "ttf-inconsolata "  --height=400 --width=400 > graf.txt
+zenity --list --title="$title" --text "Válasszon az alábbi listából!" --checklist --column Választ --column Alkalmazás FALSE "discord " FALSE "paper-gtk-theme-git " FALSE "numix-gtk-theme " FALSE "faenza-icon-theme " FALSE "arc-icon-theme " FALSE "papirus-icon-theme " FALSE "ttf-ubuntu-font-family " FALSE "ttf-inconsolata "  --height=400 --width=400 > graf.txt
 sed -i -e 's/[|]//g' graf.txt
 }
 
 # Libreoffice
 sudo pacman -Syy
 libreoffice() {
-zenity --question --title="$title" --text="Szeretnéd telepíteni a Libreoffice-t?" --height=100 --width=300
+zenity --question --title="$title" --text="Szeretné telepíteni a LibreOffice-t?" --height=100 --width=300
 lbr="$?"
 if [ "$lbr" = "0" ]
-then lover=$(zenity --list --radiolist --text="Melyik változatot szeretnéd telepíteni?" --column Jelöl --column Verzió FALSE "fresh" FALSE "still")
+then lover=$(zenity --list --radiolist --text="Melyik változatot szeretné telepíteni?" --column Jelöl --column Verzió FALSE "fresh" FALSE "still")
 lolang=$(zenity --list --radiolist --column Jelöl --column Nyelicsomag $(sudo pacman -Ssq libreoffice-$lover lang | awk '{ printf " FALSE ""\0"$0"\0" }'))
 fi
 }
 
 firefox() {
-zenity --question --title="$title" --text="Szeretnéd telepíteni a Firefox böbgészőt?" --height=100 --width=300
+zenity --question --title="$title" --text="Szeretné telepíteni a Firefox webböngészőt?" --height=100 --width=300
 frf="$?"
 if [ "$frf" = "0" ]
 then fflang=$(zenity --list --radiolist --column Jelöl --column Nyelvicsomag $(sudo pacman -Ssq firefox lang  | awk '{ printf " FALSE ""\0"$0"\0" }'))
@@ -1059,7 +1059,7 @@ fi
 
 # További alkalmazások
 installapps() {
-extra=$(zenity --list --height=300 --title="$title" --radiolist --text "Szeretnél további alkalmazásokat telepíteni?\nVálász a kategóriákból és megjelenik az alkalmazáslista.\nA választás után vissza fog a telepítő ide lépni.\nHa befejezted a válogatást válaszd a 'Befejezés'-t." --column Jelöl --column Kategóriák FALSE Internet FALSE Biztonság FALSE Média FALSE Irodai FALSE Hasznos FALSE Játékosoknak FALSE Kiegészítők FALSE Befejezés  --height=400 --width=450)
+extra=$(zenity --list --height=300 --title="$title" --radiolist --text "Szeretne további alkalmazásokat telepíteni?\n\nVálasszon a kategóriákból, és megjelenik az alkalmazáslista.\nA választás után vissza fog a telepítő ide lépni.\nHa befejezte a válogatást, válassza a 'Befejezés'-t!" --column Jelöl --column Kategóriák FALSE Internet FALSE Biztonság FALSE Média FALSE Irodai FALSE Hasznos FALSE Játékosoknak FALSE Kiegészítők FALSE Befejezés  --height=400 --width=450)
 
 if [ "$extra" = "Internet" ]
 	then internet_apps;installapps
@@ -1085,16 +1085,16 @@ lsblk -lno NAME,TYPE | grep 'disk' | awk '{print "/dev/" $1 " " $2}' | sort -u >
 sed -i 's/\<disk\>//g' devices.txt
 devices=` awk '{print "FALSE " $0}' devices.txt `
 
-grub=$(zenity --question --title="$title" --text "Szeretné telepíteni a bootloadert?\nA válasz erre általában igen,\nhacsak nem kettős indításod van\nés tervezed, hogy másik rendszer kezelje\n a rendszerindítási folyamatot." --height=200 --width=450)
+grub=$(zenity --question --title="$title" --text "Szeretné telepíteni a bootloadert?\n\nA válasz erre általában 'Igen'.\nHa kettős indítása (dualboot) van, és azt szeretné,\nhogy a másik rendszer kezelje a rendszerindítási\nfolyamatot, válassza a 'Nem'-et!" --height=200 --width=450)
 grb="$?"
 if [ "$grb" = "0" ]
-	then grub_device=$(zenity --list --title="$title" --text "Hová szeretnéd telepíteni a bootloder-t?" --radiolist --column Jelöl --column Meghajtó $devices)
+	then grub_device=$(zenity --list --title="$title" --text "Hová szeretné telepíteni a bootlodert?" --radiolist --column Jelöl --column Meghajtó $devices)
 fi
 }
 
 # Telepítés
 installing() {
-zenity --question --title="$title" --text "Kattintson a \"Yes\" gombra a telepítés megkezdéséhez.\nA \"No\"-ra a telepítés megszakításához.\nLegfrisebb csomagok lesznek letültve,\nezért ez eltarthat egy darabig." --height=150 --width=450
+zenity --question --title="$title" --text "Kattintson az \"Igen\" gombra a telepítés megkezdéséhez!\nA \"Nem\"-re kattintva a telepítés megszakad.\nTelepítéskor a legfrissebb csomagok lesznek letöltve,\nezért a folyamat eltarthat egy darabig." --height=150 --width=450
 
 if [ "$?" = "1" ]
 	then exit
@@ -1110,7 +1110,7 @@ sudo pacman -Syy
 
 
 #Telepítés base
-echo "#Telepítés base..."
+echo "# Telepítés base..."
 if [ "$kernel" = "linux" ]
 	then pacstrap /mnt base base-devel
 elif [ "$kernel" = "linux-lts" ]
@@ -1123,7 +1123,7 @@ elif [ "$kernel" = "linux-zen" ]
 fi
 
 # fstab elkészítése
-echo "# fstab elkészítése..."
+echo "# Fstab elkészítése..."
 genfstab -p /mnt >> /mnt/etc/fstab
 if grep -q "/mnt/swapfile" "/mnt/etc/fstab"; then
 sed -i '/swapfile/d' /mnt/etc/fstab
@@ -1162,7 +1162,7 @@ echo "en_US.UTF-8 UTF-8" >> /mnt/etc/locale.gen
 arch_chroot "locale-gen"
 export LANG=${locale}
 
-#Bilentyűzet kiosztás
+#Billentyűzet kiosztás
 mkdir -p /mnt/etc/X11/xorg.conf.d/
 echo -e 'Section "InputClass"\n\tIdentifier "system-keyboard"\n\tMatchIsKeyboard "on"\n\tOption "XkbLayout" "'$layout'"\n\tOption "XkbModel" "'$model'"\n\tOption "XkbVariant" ",'$variant'"\n\tOption "XkbOptions" "grp:alt_shift_toggle"\nEndSection' > /mnt/etc/X11/xorg.conf.d/00-keyboard.conf
 
@@ -1171,12 +1171,12 @@ echo "# Időzóna beállítás..."
 arch_chroot "rm /etc/localtime"
 arch_chroot "ln -s /usr/share/zoneinfo/${zone}/${subzone} /etc/localtime"
 
-#Rendszeridó beállítás
-echo "# Rendszeridó beállítás..."
+#Rendszeridő beállítás
+echo "# Rendszeridő beállítás..."
 arch_chroot "hwclock --systohc --$clock"
 
 #hostnév beállítás
-echo "# hostnév beállítás..."
+echo "# Hostnév beállítás..."
 arch_chroot "echo $hname > /etc/hostname"
 
 # sudo beállítás
@@ -1190,7 +1190,7 @@ echo "# Audió és videó driver telepítés..."
 arch_chroot "pacman -Syy"
 arch_chroot "pacman -S --noconfirm --needed mesa xorg-server xorg-apps xorg-xinit xorg-twm xterm xorg-drivers alsa-utils pulseaudio pulseaudio-alsa xf86-input-synaptics xf86-input-keyboard xf86-input-mouse xf86-input-libinput intel-ucode b43-fwcutter networkmanager nm-connection-editor network-manager-applet polkit-gnome ttf-dejavu gnome-keyring xdg-user-dirs gvfs gvfs-mtp "
 
-# virtualbox
+# VirtualBox
 if [ "$vb" = "0" ]
 	then
 	if [ "$kernel" = "linux" ]
@@ -1326,7 +1326,7 @@ fi
 
 
 # mkinit inditása
-echo "# Running mkinitcpio..."
+echo "# mkinitcpio futtatása..."
 arch_chroot "mkinitcpio -p $kernel"
 
 
@@ -1402,12 +1402,12 @@ rm /mnt/etc/pacman.mentes
 umount -R /mnt
 
 echo "100"
-echo "# Telepítés befejeződött!"
+echo "# A telepítés befejeződött!"
 ) | zenity --progress --percentage=0 --title="$title" --width=450 --no-cancel
 fi
 }
 
-# Futatás
+# Futtatás
 # Rendszer-ellenőrzés
 if [[ -d "/sys/firmware/efi/" ]]; then
       SYSTEM="UEFI"
@@ -1417,7 +1417,7 @@ fi
 
 
 # A változók beállítása
-title="Krive001 telepítő 2.0 $SYSTEM"
+title="Krive001 telepítő 2.0 - $SYSTEM mód"
 
 oldifs=$IFS
 
@@ -1431,7 +1431,7 @@ Parted() {
 	parted --script $dev "$1"
 }
 # A felhasználó üdvözlése
-zenity --question --title="$title" --text "Üdvözöljük.\nEz egy Arch Linux telepítő.\nA telepítő végig fogja vezetni a telepítés folyamatán.\nA telepítés megkezdéséhez válassza a \"Yes\"-t,\nha nem kíván telepíteni akkor \"No\"-t." --height=150 --width=400
+zenity --question --title="$title" --text "Üdvözöljük!\nEz egy magyar Arch Linux telepítő.\nA telepítő végig fogja vezetni a telepítés folyamatán.\nA telepítés megkezdéséhez válassza a \"Igen\"-t,\nha nem kíván telepíteni, akkor a \"Nem\"-et!" --height=150 --width=400
 
 if [ "$?" = "1" ]
 	then exit
