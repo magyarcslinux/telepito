@@ -68,27 +68,27 @@ kswpnofile() {
                 done
 
 
-                # Ha üres valamelyik partició...
+                # Ha üres valamelyik partíció...
                 if [ "$nincstolt" -gt "$alap0" ]
-                        then zenity --error --title="$title" --text "Minden mező kitöltése kötelező!!!\nHa nem akarsz az adott helyre csatolni, válaszd a Nincs lehetőséget" --height=100  --width=300 
+                        then zenity --error --title="$title" --text "Minden mező kitöltése kötelező!\nHa nem szeretne az adott helyre csatolni, válassza a \"Nincs\" lehetőséget!" --height=100  --width=300 
                         kswpnofile
                         return 1
                         fi 
 
                 # Root csatolás nem lehet üres...
                 if [ "$root_part" = "Nincs" ]
-                        then zenity --error --title="$title" --text "Nem választottal root partíciót" --height=100  --width=300
+                        then zenity --error --title="$title" --text "Nem választott root partíciót!" --height=100  --width=300
                         kswpnofile
                         return 1
                 
                 # Ha swap partició ez se lehet üres...
                 elif   [ "$swap_part" = "Nincs" ]
-                        then zenity --error --title="$title" --text "Nem választottal swap partíciót" --height=100  --width=300
+                        then zenity --error --title="$title" --text "Nem választott swap partíciót!" --height=100  --width=300
                         kswp
                         return 1
 
                 elif [ "$SYSTEM" = "UEFI" -a "$boot_part" = "Nincs" ]
-                        then zenity --error --title="$title" --text "Nem választottal boot partíciót.\nUEFI-ben bootolt a rendszer." --height=100  --width=300
+                        then zenity --error --title="$title" --text "Nem választott boot partíciót!\nUEFI-s telepítéskor szükség van boot partícióra." --height=100  --width=300
                         kswpnofile
                         return 1
                 fi
@@ -133,7 +133,7 @@ kswpnofile() {
                 # Dupla van-e...
                 if [ "$rootszamlal" -gt "1" -o "$bootszamlal" -gt "$alap" -o "$homeszamlal" -gt "$alap" -o "$optszamlal" -gt "$alap" -o "$swapszamlal" -gt "$alap" -o "$srvszamlal" -gt "$alap" -o "$tmpszamlal" -gt "$alap" -o "$usrszamlal" -gt "$alap" -o "$varszamlal" -gt "$alap" ]
                         then 
-                                zenity --error --title="$title" --text "Többször választottad ugyanazt a particiót" --height=100  --width=300
+                                zenity --error --title="$title" --text "Többször választotta ugyanazt a partíciót!" --height=100  --width=300
                                 kswpnofile
                                 return 1
                         fi
@@ -156,7 +156,7 @@ kswpnofile() {
         sudo fdisk -l | grep dev | grep -v Disk | awk '{print $1}' >> be.txt
         tr -s '\n' '|' < be.txt > ki.txt
         mylist=` cat ki.txt `
-        ellenor $(zenity --forms --text "Ad meg a csatolási pontokat" --add-combo="Csatolási pont (/)" --combo-values="${mylist::-1}" \
+        ellenor $(zenity --forms --text "Adja meg a csatolási pontokat!" --add-combo="Csatolási pont (/)" --combo-values="${mylist::-1}" \
                 --add-combo="Csatolási pont (/boot/efi)" --combo-values=$"${mylist::-1}" --add-combo="Csatolási pont (/home)" --combo-values="${mylist::-1}" \
                 --add-combo="Csatolási pont (/opt)" --combo-values="${mylist::-1}" \
                 --add-combo="Csatolási pont (/swap)" --combo-values="${mylist::-1}" --add-combo="Csatolási pont (/srv)" --combo-values="${mylist::-1}" \
