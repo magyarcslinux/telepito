@@ -596,6 +596,9 @@ bootloader_set() {
 
     
     # boot_sel=$(echo $bootloader | cut -d '|' -f2)
+    MAIN_LIST=("false" "$MAIN001" "false" "$MAIN012" "false" "$MAIN002" "false" "$MAIN003" "false" "$MAIN004" \
+        "false" "$MAIN005" "false" "$MAIN006" "false" "$MAIN007" "false" "$MAIN008" \
+        "false" "$MAIN009" "false" "$MAIN010" "False" "$MAIN011" "true" "$MAIN013")
 
     if [ "$(echo "$bootloader" | cut -d "|" -f2)" = "grub" ]
     then
@@ -1383,9 +1386,7 @@ install_summary() {
 
     unset MAIN_LIST
     
-    MAIN_LIST=("false" "$MAIN001" "false" "$MAIN012" "false" "$MAIN002" "false" "$MAIN003" "false" "$MAIN004" \
-        "false" "$MAIN005" "false" "$MAIN006" "false" "$MAIN007" "false" "$MAIN008" \
-        "false" "$MAIN009" "false" "$MAIN010" "False" "$MAIN011" "true" "$MAIN013")
+    
 
     if [ "$boot_sel" = "grub" ]
     then
