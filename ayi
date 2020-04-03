@@ -1420,7 +1420,8 @@ install_run() {
     (echo "# $INS000"
     # reflector --verbose -l 50 -p https --sort rate --save /etc/pacman.d/mirrorlist
     miro=$(curl -s "https://www.archlinux.org/mirrorlist/?country="${KEYBOARD_LAYOUT^^}"&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' | rankmirrors -n 50 -)
-    echo "$miro" > /etc/pacman.d/mirrorlist
+    echo "$miro" > miro.txt
+    sudo cp miro.txt /etc/pacman.d/mirrorlist
 
     sudo pacman -Syy
 
