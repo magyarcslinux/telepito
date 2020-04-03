@@ -717,7 +717,7 @@ kswp() {
     then
         kswpf
     else
-        kswno
+        kswpno
     fi
 }
 
