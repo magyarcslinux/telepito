@@ -1492,7 +1492,7 @@ install_run() {
     if [ "$kern" = "linux" ]
     then
         pacstrap /mnt base base-devel linux linux-firmware bash bash-completion
-    elif [ "$kernel" = "linux-lts" ]
+    elif [ "$kern" = "linux-lts" ]
     then
         pacstrap /mnt  base base-devel linux-lts linux-firmware bash bash-completion
     fi
