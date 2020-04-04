@@ -1676,7 +1676,7 @@ install_run() {
         then
             echo "# Bootloader telepítés..."
 
-            pacstrap refind-efi efibootmgr
+            pacstrap /mnt refind-efi efibootmgr
             # arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
             rootuuid=$(lsblk -lno UUID ${root_part})
             arch_chroot "refind-install"
