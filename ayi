@@ -1676,7 +1676,7 @@ install_run() {
         then
             echo "# Bootloader telepítés..."
 
-            arch_chroot "pacman -S refind-efi efibootmgr"
+            arch_chroot "pacman -S --noconfirm  refind-efi efibootmgr"
             # arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
             rootuuid=$(lsblk -lno UUID ${root_part})
             echo "Arch Linux          root=UUID=${rootuuid} rw add_efi_memmap" > /mnt/boot/refind_linux.conf
