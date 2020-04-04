@@ -899,7 +899,8 @@ check_kswpnofile() {
 
 kswpnofile() {
 
-    las=$(sudo fdisk -l | grep "${dev}" | grep -v Disk | awk '{print $1}' | tr "\n" ",")
+    las=$(sudo fdisk -l | grep "$dev" | grep -v Disk | awk '{print $1}' | tr "\n" ",")
+    echo $las
 
     check_kswpnofile $(yad --width=400 --center --title="$TITLE" --text="$KSWP005" \
         --buttons-layout=center --image=preferences \
@@ -1126,7 +1127,8 @@ kswpfsize() {
 
 kswpf() {
 
-    las=$(sudo fdisk -l | grep "${dev}" | grep -v Disk | awk '{print $1}' | tr "\n" ",")
+    las=$(sudo fdisk -l | grep "$dev" | grep -v Disk | awk '{print $1}' | tr "\n" ",")
+    echo $las
 
     check_kswpf $(yad --width=400 --center --title="$TITLE" --text="$KSWP005" \
         --buttons-layout=center --image=preferences \
@@ -1322,7 +1324,8 @@ check_kswpno() {
 
 kswpno() {
 
-    las=$(sudo fdisk -l | grep "${dev}" | grep -v Disk | awk '{print $1}' | tr "\n" ",")
+    las=$(sudo fdisk -l | grep "$dev" | grep -v Disk | awk '{print $1}' | tr "\n" ",")
+    echo $las
 
     check_kswpno $(yad --width=400 --center --title="$TITLE" --text="$KSWP005" \
         --buttons-layout=center --image=preferences \
@@ -1477,12 +1480,12 @@ install_run() {
     echo "KEYMAP=\"${kbl}\""  > /mnt/etc/vconsole.conf
 
     echo "# $INS004"
-    arch_chroot "rm /etc/localtime"
+    # arch_chroot "rm /etc/localtime"
     arch_chroot "ln -s /usr/share/zoneinfo/${tzz}/${tzsz} /etc/localtime"
 
     arch_chroot "hwclock --systohc --${tim}"
 
-    arch_chroot "echo ${hsname} > /etc/hostname"
+    arch_chroot "echo ${hsnm} > /etc/hostname"
 
     echo "%wheel ALL=(ALL) ALL" >> /mnt/etc/sudoers
 
