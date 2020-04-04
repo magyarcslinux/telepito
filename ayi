@@ -705,14 +705,7 @@ man_part() {
 
 kswp() {
 
-    devices="$(lsblk -lno NAME,TYPE | grep 'disk' | awk '{print "/dev/" $1 " " $2}' | sort -u | sed "s/ disk//g" | awk '{print "false " $0}')"
-
-    device="$(yad  --width=400 --center \
-        --buttons-layout=center --title="$TITLE" --text="$MAIN012" \
-        --no-selection  --image=preferences --radiolist --list \
-        --column="" --column="" $devices)"
-    dev="$(echo "$device" | cut -d "|" -f2)"
-    echo $dev
+    
 
     swap_que="$(yad  --width=400 --center \
         --buttons-layout=center --title="$TITLE" --text="$KSWP003" \
@@ -913,6 +906,15 @@ check_kswpnofile() {
 
 
 kswpnofile() {
+
+    devices="$(lsblk -lno NAME,TYPE | grep 'disk' | awk '{print "/dev/" $1 " " $2}' | sort -u | sed "s/ disk//g" | awk '{print "false " $0}')"
+
+    device="$(yad  --width=400 --center \
+        --buttons-layout=center --title="$TITLE" --text="$MAIN012" \
+        --no-selection  --image=preferences --radiolist --list \
+        --column="" --column="" $devices)"
+    dev="$(echo "$device" | cut -d "|" -f2)"
+    echo $dev
 
     las=$(sudo fdisk -l | grep "$dev" | grep -v Disk | awk '{print $1}' | tr "\n" ",")
     echo $las
@@ -1148,6 +1150,15 @@ kswpfsize() {
 
 kswpf() {
 
+    devices="$(lsblk -lno NAME,TYPE | grep 'disk' | awk '{print "/dev/" $1 " " $2}' | sort -u | sed "s/ disk//g" | awk '{print "false " $0}')"
+
+    device="$(yad  --width=400 --center \
+        --buttons-layout=center --title="$TITLE" --text="$MAIN012" \
+        --no-selection  --image=preferences --radiolist --list \
+        --column="" --column="" $devices)"
+    dev="$(echo "$device" | cut -d "|" -f2)"
+    echo $dev
+
     las=$(sudo fdisk -l | grep "$dev" | grep -v Disk | awk '{print $1}' | tr "\n" ",")
     echo $las
 
@@ -1350,6 +1361,15 @@ check_kswpno() {
 }
 
 kswpno() {
+
+    devices="$(lsblk -lno NAME,TYPE | grep 'disk' | awk '{print "/dev/" $1 " " $2}' | sort -u | sed "s/ disk//g" | awk '{print "false " $0}')"
+
+    device="$(yad  --width=400 --center \
+        --buttons-layout=center --title="$TITLE" --text="$MAIN012" \
+        --no-selection  --image=preferences --radiolist --list \
+        --column="" --column="" $devices)"
+    dev="$(echo "$device" | cut -d "|" -f2)"
+    echo $dev
 
     las=$(sudo fdisk -l | grep "$dev" | grep -v Disk | awk '{print $1}' | tr "\n" ",")
     echo $las
