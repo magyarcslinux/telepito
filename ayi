@@ -1073,10 +1073,13 @@ check_kswpf() {
     # mkswap "$swap_part"
     # swapon "$swap_part"
 
+    echo $root_part
+
     if [ "$root_part" != "$NONE" ]
     then
         # mkdir -p /mnt/boot
         mount "$root_part" /mnt
+        echo $root_part
     fi
 
     if [ "$boot_part" != "$NONE" ]
