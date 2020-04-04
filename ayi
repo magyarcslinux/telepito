@@ -856,16 +856,22 @@ check_kswpnofile() {
     # Mount
     mount "$root_part" /mnt
     
-    mkdir -p /mnt/boot/efi
-    mount "$bootefi_part" /mnt/boot/efi
+    # mkdir -p /mnt/boot/efi
+    # mount "$bootefi_part" /mnt/boot/efi
 
     mkswap "$swap_part"
     swapon "$swap_part"
 
     if [ "$boot_part" != "$NONE" ]
     then
-        # mkdir -p /mnt/boot/efi
+        mkdir /mnt/boot/
         mount "$boot_part" /mnt/boot
+    fi
+
+    if [ "$bootefi_part" != "$NONE" ]
+    then
+        mkdir -p /mnt/boot/efi
+        mount "$bootefi_part" /mnt/boot/efi
     fi
 
     if [ "$home_part" != "$NONE" ]
@@ -1056,16 +1062,22 @@ check_kswpf() {
     # Mount
     mount "$root_part" /mnt
     
-    mkdir -p /mnt/boot/efi
-    mount "$bootefi_part" /mnt/boot/efi
+    # mkdir -p /mnt/boot/efi
+    # mount "$bootefi_part" /mnt/boot/efi
 
     # mkswap "$swap_part"
     # swapon "$swap_part"
 
     if [ "$boot_part" != "$NONE" ]
     then
-        # mkdir -p /mnt/boot/efi
+        mkdir -p /mnt/boot
         mount "$boot_part" /mnt/boot
+    fi
+
+    if [ "$bootefi_part" != "$NONE" ]
+    then
+        mkdir -p /mnt/boot/efi
+        mount "$bootefi_part" /mnt/boot/efi
     fi
 
     if [ "$home_part" != "$NONE" ]
@@ -1282,16 +1294,22 @@ check_kswpno() {
     # Mount
     mount "$root_part" /mnt
     
-    mkdir -p /mnt/boot/efi
-    mount "$bootefi_part" /mnt/boot/efi
+    # mkdir -p /mnt/boot/efi
+    # mount "$bootefi_part" /mnt/boot/efi
 
     # mkswap "$swap_part"
     # swapon "$swap_part"
 
     if [ "$boot_part" != "$NONE" ]
     then
-        # mkdir -p /mnt/boot/efi
+        mkdir -p /mnt/boot
         mount "$boot_part" /mnt/boot
+    fi
+
+    if [ "$bootefi_part" != "$NONE" ]
+    then
+        mkdir -p /mnt/boot/efi
+        mount "$bootefi_part" /mnt/boot/efi
     fi
 
     if [ "$home_part" != "$NONE" ]
