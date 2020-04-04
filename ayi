@@ -1421,9 +1421,9 @@ install_run() {
     # reflector --verbose -l 50 -p https --sort rate --save /etc/pacman.d/mirrorlist
     miro=$(curl -s "https://www.archlinux.org/mirrorlist/?country="${KEYBOARD_LAYOUT^^}"&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' )
     echo "$miro" > miro.txt
-    sudo cp miro.txt /etc/pacman.d/mirrorlist
+    cp miro.txt /etc/pacman.d/mirrorlist
 
-    sudo pacman -Syy
+    pacman -Syy
 
     echo "# Telepítés base..."
     if [ "$kern" = "linux" ]
@@ -1450,7 +1450,7 @@ install_run() {
     rm .passwd
     
     echo "# $INS003"
-    arch_chroot "useradd -m -g users -G adm,lp,wheel,power,audio,video -s /bin/bash $username"
+    arch_chroot "useradd -m -g users -G adm,lp,wheel,power,audio,video -s /bin/bash $user_name"
     touch .passwd
     echo -e "$userpass1\n$userpass2" > .passwd
     arch_chroot "passwd $user_name" < .passwd >/dev/null
@@ -1490,7 +1490,7 @@ install_run() {
     arch_chroot "pacman -Syy"
 
     echo "# $INS005"
-    arch_chroot "pacman -S --noconfirm --needed xorg-server xorg-apps xorg-xinit xorg-twm xterm alsa-utils pulseaudio pulseaudio-alsa xf86-input-synaptics xf86-input-keyboard xf86-input-mouse xf86-input-libinput b43-fwcutter networkmanager nm-connection-editor network-manager-applet xdg-user-dirs gvfs gvfs-mtp"
+    arch_chroot "pacman -S --noconfirm --needed xorg-server xorg-apps xorg-xinit xorg-twm xterm alsa-utils pulseaudio pulseaudio-alsa xf86-input-synaptics xf86-input-libinput b43-fwcutter networkmanager nm-connection-editor network-manager-applet xdg-user-dirs gvfs gvfs-mtp"
 
 
     echo "# $INS006"
