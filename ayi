@@ -1565,13 +1565,13 @@ install_run() {
             arch_chroot "systemctl enable lightdm.service"
         fi
     
-    elif [ "$dm" = "lightdm" ]
+    elif [ "$dm_set" = "lightdm" ]
     then
         arch_chroot "pacman -S --noconfirm --needed lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings "
         arch_chroot "systemctl enable lightdm.service"
     else
         arch_chroot "pacman -S --noconfirm --needed $dm "
-        arch_chroot "systemctl enable $dm.service"
+        arch_chroot "systemctl enable ${dm_set}.service"
     fi
 
     arch_chroot "systemctl enable NetworkManager"
