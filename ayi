@@ -1676,10 +1676,11 @@ install_run() {
         then
             echo "# Bootloader telepítés..."
 
-            arch_chroot "pacman -S --noconfirm  refind-efi efibootmgr"
+            pacstrap refind-efi efibootmgr
             # arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
             rootuuid=$(lsblk -lno UUID ${root_part})
-            echo "Arch Linux          root=UUID=${rootuuid} rw add_efi_memmap" > /mnt/boot/refind_linux.conf
+            arch_chroot "refind-install"
+            echo "Arch Linux          root=UUID=${rootuuid} rw add_efi_memmap" >> /mnt/boot/refind_linux.conf
             echo "Arch Linux Fallback root=UUID=${rootuuid} rw add_efi_memmap initrd=/initramfs-linux-fallback.img" >> /mnt/boot/refind_linux.conf
             echo "Arch Linux Terminal root=UUID=${rootuuid} rw add_efi_memmap systemd.unit=multi-user.target" >> /mnt/boot/refind_linux.conf
 
