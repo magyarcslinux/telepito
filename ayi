@@ -712,8 +712,8 @@ kswp() {
         --no-selection  --image=help --radiolist --list \
         --column="" --column="" "${KSWP_LIST[@]}")"
 
-    swap_que=$(echo swap_query | cut -d "|" -f2)
-    
+    swap_que=$(echo $swap_query | cut -d "|" -f2)
+
 
     if [ "$$swap_que" = "$KSWP000" ]
     then
@@ -1133,21 +1133,22 @@ kswpfsize() {
         --form  --item-separator="," --separator=" " \
         --field="$MNT001":CB \
         "1024,2046,3072,4096")
+    swaps=$(echo éswapsize | cut -d "|" -f2)
         
-        if [ "$?" = "0" ]
-        then
-            swapfile="yes"
-            (echo "# Swap fájl készítése..."
-            touch /mnt/swapfile
-            dd if=/dev/zero of=/mnt/swapfile bs=1M count=${swapsize}
-            chmod 600 /mnt/swapfile
-            mkswap /mnt/swapfile
-            swapon /mnt/swapfile) | yad --progress --title="$TITLE" --width=450 --pulsate --auto-close --no-buttons
-            #echo "swap készítés"
-            # egyeb_csatolas
-        else
-            kswp
-        fi
+    if [ "$?" = "0" ]
+    then
+        swapfile="yes"
+        (echo "# Swap fájl készítése..."
+        touch /mnt/swapfile
+        dd if=/dev/zero of=/mnt/swapfile bs=1M count=${swaps}
+        chmod 600 /mnt/swapfile
+        mkswap /mnt/swapfile
+        swapon /mnt/swapfile) | yad --progress --title="$TITLE" --width=450 --pulsate --auto-close --no-buttons
+        #echo "swap készítés"
+        # egyeb_csatolas
+    else
+        kswp
+    fi
 }
 
 
