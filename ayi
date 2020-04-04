@@ -707,10 +707,13 @@ kswp() {
 
     
 
-    swap_que="$(yad  --width=400 --center \
+    swap_query="$(yad  --width=400 --center \
         --buttons-layout=center --title="$TITLE" --text="$KSWP003" \
         --no-selection  --image=help --radiolist --list \
         --column="" --column="" "${KSWP_LIST[@]}")"
+
+    swap_que=$(echo swap_query | cut -d "|" -f2)
+    
 
     if [ "$$swap_que" = "$KSWP000" ]
     then
