@@ -462,7 +462,7 @@ dm_desktop_set() {
         --field="$DMDE002":CB \
         "^lightdm,lxdm,sddm,gdm,${DEFAULT}" \
         "gnome,gnome gnome-extra,plasma,plasma kde-applications,xfce4,xfce4 xfce4-goodies,lxde,lxqt, \
-        mate,mate mate-extra,budgie-desktop,cinnamon,deepin,enlightenment,jwm,bspwm,qtile,i3,xmonad")"
+mate,mate mate-extra,budgie-desktop,cinnamon,deepin,enlightenment,jwm,bspwm,qtile,i3,xmonad,openbox")"
 
     unset MAIN_LIST
     
