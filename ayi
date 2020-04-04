@@ -1065,13 +1065,19 @@ check_kswpf() {
     fi
 
     # Mount
-    mount "$root_part" /mnt
+    # mount $root_part /mnt
     
     # mkdir -p /mnt/boot/efi
     # mount "$bootefi_part" /mnt/boot/efi
 
     # mkswap "$swap_part"
     # swapon "$swap_part"
+
+    if [ "$root_part" != "$NONE" ]
+    then
+        # mkdir -p /mnt/boot
+        mount "$root_part" /mnt
+    fi
 
     if [ "$boot_part" != "$NONE" ]
     then
