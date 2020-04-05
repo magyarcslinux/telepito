@@ -1553,8 +1553,9 @@ install_run() {
     arch_chroot "pacman -Syy"
 
     echo "# $INS005"
-    arch_chroot "pacman -S --noconfirm --needed xorg-server xorg-apps xorg-xinit xorg-twm xterm alsa-utils pulseaudio pulseaudio-alsa xf86-input-synaptics xf86-input-libinput b43-fwcutter networkmanager nm-connection-editor network-manager-applet xdg-user-dirs gvfs gvfs-mtp"
+    arch_chroot "pacman -S --noconfirm --needed xorg-server xorg-apps xorg-xinit xorg-twm xterm alsa-utils pulseaudio pulseaudio-alsa xf86-input-synaptics xf86-input-libinput b43-fwcutter networkmanager nm-connection-editor network-manager-applet xdg-user-dirs gvfs gvfs-mtp git"
 
+    arch_chroot "su ${user_name} -c "git clone https://aur.archlinux.org/yay-bin" && cd yay-bin && su ${user_name} -c "makepkg" && pacman -U --noconfirm yay-bin*x86_64* ; cd .. && rm -rf yay-bin"
 
     echo "# $INS006"
 
@@ -1693,7 +1694,7 @@ install_run() {
 
     echo "100"
     echo "# A telepítés befejeződött!"
-    ) | yad --progress --auto-close --enable-log --log-expanded --no-buttons
+    ) | yad --title="$TITLE" --width=400 --height=250 --progress --auto-close --enable-log --log-expanded --no-buttons
 
     yad --image=info  --buttons-layout=center --text="$ERROR001"
     reboot
