@@ -1557,7 +1557,7 @@ install_run() {
 
     aur_hlp="\"su ${user_name} -c \"git clone https://aur.archlinux.org/yay-bin\" ; cd yay-bin ; su ${user_name} -c \"makepkg\" ; pacman -U --noconfirm yay-bin*x86_64* ; cd .. ; rm -rf yay-bin\"" 
 
-    arch_chroot ${aur_hlp}
+    arch_chroot $(echo ${aur_hlp})
 
     echo "# $INS006"
 
