@@ -1688,6 +1688,15 @@ install_run() {
 
     arch_chroot "pacman -S --noconfirm --needed $pack_int $pack_sec $pack_med $pack_ofi $pack_uti"
     
+    if [ "$de_set" = "bspwm" ]
+    then
+        arch_chroot "pacman -S --noconfirm --needed  sxhkd xdo rxvt-unicode dmenu scrot"
+        arch_chroot "su ${user_name} -c 'mkdir -p /home/$user_name/.config/{bspwm,sxhkd}'"
+        arch_chroot "su ${user_name} -c  'cp /usr/share/doc/bspwm/examples/bspwmrc /home/$user_name/.config/bspwm/'"
+        arch_chroot "su ${user_name} -c  'cp /usr/share/doc/bspwm/examples/sxhkdrc /home/$user_name/.config/sxhkd/'"
+    fi
+
+
 
     if [ "$boot_sel" = "grub" ]
     then
