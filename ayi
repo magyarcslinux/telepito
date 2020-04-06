@@ -191,8 +191,8 @@ installer_lang() {
     UTI007=$(GETTEXT "Drop-down terminal for GNOME")
     UTI008=$(GETTEXT "NTFS filesystem driver and utilities")
     UTI009=$(GETTEXT "Btrfs filesystem utilities")
-    UTI010=$(GETTEXT "A Gtk3 frontend for libalpm")
-    UTI011=$(GETTEXT "A powerful Pacman frontend using Qt libs")
+    # UTI010=$(GETTEXT "A Gtk3 frontend for libalpm")
+    # UTI011=$(GETTEXT "A powerful Pacman frontend using Qt libs")
     # UTI012=$(GETTEXT "")
     # UTI013=$(GETTEXT "")
     # UTI014=$(GETTEXT "")
@@ -201,8 +201,7 @@ installer_lang() {
     OTHER_LIST_UTI=( "false" "htop" "$UTI000" "false" "gnome-disk-utility" "$UTI001" \
         "false" "gparted" "$UTI002"  "false" "redshift" "$UTI003" "false" "geany" "$UTI004" \
         "false" "parcellite" "$UTI005" "false" "grsync" "$UTI006" "false" "guake" "$UTI007" \
-        "false" "ntfs-3g" "$UTI008" "false" "btrfs-progs" "$UTI009" "false" "pamac-aur" "$UTI010" \
-        "false" "octopi" "$UTI011")
+        "false" "ntfs-3g" "$UTI008" "false" "btrfs-progs" "$UTI009")
 
     PART000=$(GETTEXT "Automatic partitioning")
     PART001=$(GETTEXT "Manual partitioning")
@@ -479,6 +478,9 @@ other_apps_int() {
         --no-selection  --image=preferences --checklist --list \
         --column="" --column="" --column="" "${OTHER_LIST_INT[@]}")"
 
+    pack_int=$(echo $oth_int  echo $a | sed "s/ TRUE/;TRUE/g" | tr ";" "\n" | cut -d '|' -f2 | tr '\n' " ")
+
+
     unset OTHER_LIST
 
     OTHER_LIST=("false" "$OTHER000" "true" "$OTHER001" "false" "$OTHER002" \
@@ -492,6 +494,9 @@ other_apps_sec() {
         --buttons-layout=center --title="$TITLE" --text="$OTHER001"\
         --no-selection  --image=preferences --checklist --list \
         --column="" --column="" --column="" "${OTHER_LIST_SEC[@]}")"
+
+    pack_sec=$(echo $oth_sec  echo $a | sed "s/ TRUE/;TRUE/g" | tr ";" "\n" | cut -d '|' -f2 | tr '\n' " ")
+
     
     unset OTHER_LIST
 
@@ -506,6 +511,9 @@ other_apps_med() {
         --buttons-layout=center --title="$TITLE" --text="$OTHER002"\
         --no-selection  --image=preferences --checklist --list \
         --column="" --column="" --column="" "${OTHER_LIST_MED[@]}")"
+
+    pack_med=$(echo $oth_med  echo $a | sed "s/ TRUE/;TRUE/g" | tr ";" "\n" | cut -d '|' -f2 | tr '\n' " ")
+
    
    unset OTHER_LIST
 
@@ -521,6 +529,9 @@ other_apps_ofi() {
         --no-selection  --image=preferences --checklist --list \
         --column="" --column="" --column="" "${OTHER_LIST_OFI[@]}")"
 
+    pack_ofi=$(echo $oth_ofi  echo $a | sed "s/ TRUE/;TRUE/g" | tr ";" "\n" | cut -d '|' -f2 | tr '\n' " ")
+
+
     unset OTHER_LIST
 
     OTHER_LIST=("false" "$OTHER000"  "false" "$OTHER001" "false" "$OTHER002" \
@@ -534,6 +545,9 @@ other_apps_uti() {
         --buttons-layout=center --title="$TITLE" --text="$OTHER004"\
         --no-selection  --image=preferences --checklist --list \
         --column="" --column="" --column="" "${OTHER_LIST_UTI[@]}")"
+
+    pack_uti=$(echo $oth_uti  echo $a | sed "s/ TRUE/;TRUE/g" | tr ";" "\n" | cut -d '|' -f2 | tr '\n' " ")
+
     
    # OTHER_LIST=("false" "$OTHER000" "false" "$OTHER001" "false" "$OTHER002" \
    #     "false" "$OTHER003" "true" "$OTHER004" )
@@ -1444,6 +1458,7 @@ install_summary() {
     dm_set=$(echo $dm_des | cut -d '|' -f1)
     de_set=$(echo $dm_des | cut -d '|' -f2)
 
+
     boot_sel=$(echo $bootloader | cut -d '|' -f2)
     grb_dev=$(echo $grb_set | cut -d '|' -f2)
 
@@ -1460,6 +1475,7 @@ install_summary() {
     else
         boot_load="${BTL000}:  $boot_sel"
     fi
+
 
     ins_sum="$(yad --width=400 --center --title="$TITLE" --text="$MAIN008" \
         --buttons-layout=center --image=input-gaming \
@@ -1481,12 +1497,13 @@ install_run() {
 
 
     (echo "# $INS000"
-    # reflector --verbose -l 50 -p https --sort rate --save /etc/pacman.d/mirrorlist
-    miro=$(curl -s "https://www.archlinux.org/mirrorlist/?country="${KEYBOARD_LAYOUT^^}"&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' )
-    echo "$miro" > miro.txt
-    cp miro.txt /etc/pacman.d/mirrorlist
+    reflector --verbose -l 50 -p https --sort rate --save /etc/pacman.d/mirrorlist
 
-    pacman -Syy
+    # miro=$(curl -s "https://www.archlinux.org/mirrorlist/?country="${KEYBOARD_LAYOUT^^}"&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' )
+    # echo "$miro" > miro.txt
+    # cp miro.txt /etc/pacman.d/mirrorlist
+
+    # pacman -Syy
 
     echo "# Telepítés base..."
     if [ "$kern" = "linux" ]
@@ -1505,6 +1522,9 @@ install_run() {
     sed -i '/swapfile/d' /mnt/etc/fstab
     echo "/swapfile     none    swap    defaults    0   0" >> /mnt/etc/fstab
     fi
+
+    echo "" >> /mnt/etc/pacman.conf;echo "[multilib]" >> /mnt/etc/pacman.conf;echo "Include = /etc/pacman.d/mirrorlist" >> /mnt/etc/pacman.conf
+    arch_chroot "pacman -Syy"
 
     echo "# $INS002"
     touch .passwd
@@ -1549,7 +1569,7 @@ install_run() {
 
     echo "%wheel ALL=(ALL) ALL" >> /mnt/etc/sudoers
 
-    sudo cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
+    cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
     arch_chroot "pacman -Syy"
 
     echo "# $INS005"
@@ -1558,6 +1578,16 @@ install_run() {
     # aur_hlp="cd /home/${user_name} ; su ${user_name} -c 'git clone https://aur.archlinux.org/yay-bin' ; cd yay-bin ; su ${user_name} -c 'makepkg' ; pacman -U yay-bin*x86_64* --noconfirm ; cd .. ; rm -rf yay-bin" 
 
     arch_chroot "cd /home/${user_name} ; su ${user_name} -c 'git clone https://aur.archlinux.org/yay-bin' ; cd yay-bin ; su ${user_name} -c 'makepkg' ; pacman -U yay-bin*x86_64* --noconfirm ; cd .. ; rm -rf yay-bin"
+
+    processor=$(lspci -n | awk -F " " '{print $2 $3}' | grep ^"06" | awk -F ":" '{print $2}' | sed -n  '1p')
+
+    if [ "$processor" = "8086" ]
+    then
+        pacstrap /mnt intel-ucode
+    elif [ "$processor" = "1002" ]
+    then
+        pacstrap /mnt amd-ucode
+    fi
 
     echo "# $INS006"
 
@@ -1601,7 +1631,7 @@ install_run() {
 
     arch_chroot "pacman -S --noconfirm --needed $de_set "
 
-    
+
     if [ "$dm_set"  = "$DEFAULT" ]
     then
         if [ "$de_set" = "gnome" ]
@@ -1626,9 +1656,9 @@ install_run() {
         then
             arch_chroot "pacman -S --noconfirm --needed sddm "
             arch_chroot "systemctl enable sddm.service"
-        else 
-            arch_chroot "pacman -S --noconfirm --needed lightdm lightdm-gtk-greeter-settings lightdm-gtk-greeter "
-            arch_chroot "systemctl enable lightdm.service"
+        # else 
+        #     arch_chroot "pacman -S --noconfirm --needed lightdm lightdm-gtk-greeter-settings lightdm-gtk-greeter "
+        #     arch_chroot "systemctl enable lightdm.service"
         fi
     
     elif [ "$dm_set" = "lightdm" ]
@@ -1642,8 +1672,7 @@ install_run() {
 
     arch_chroot "systemctl enable NetworkManager"
 
-    echo "" >> /mnt/etc/pacman.conf;echo "[multilib]" >> /mnt/etc/pacman.conf;echo "Include = /etc/pacman.d/mirrorlist" >> /mnt/etc/pacman.conf
-    arch_chroot "pacman -Syy"
+    
 
     if [ "$shel_l" = "zsh" ]
     then
@@ -1654,6 +1683,11 @@ install_run() {
     else 
         arch_chroot "pacman -S --noconfirm --needed $shel_l;chsh -s /usr/bin/$shel_l" 
     fi
+
+    echo "# other install..."
+
+    arch_chroot "pacman -S --noconfirm --needed $pack_int $pack_sec $pack_med $pack_ofi $pack_uti"
+    
 
     if [ "$boot_sel" = "grub" ]
     then
@@ -1672,7 +1706,7 @@ install_run() {
             arch_chroot "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=magyarcslinux1 --recheck"
             arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
         fi
-    
+
     elif [ "$boot_sel" = "refind" ]
     then
         if [ "$SYSTEM" = 'UEFI' ]
@@ -1689,6 +1723,8 @@ install_run() {
 
         fi
     fi
+
+
 
     arch_chroot "mkinitcpio -p $kern"
 
@@ -1794,6 +1830,7 @@ main() {
 
 installer_lang
 main
+# other_app_set
 # kswp
 # install_summary
 # kswpfsize
