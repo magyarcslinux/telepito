@@ -473,7 +473,7 @@ mate,mate mate-extra,budgie-desktop,cinnamon,deepin,enlightenment,jwm,bspwm,qtil
 
 other_apps_int() {
 
-    oth_int="$(yad  --width=400 --center \
+    oth_int="$(yad  --width=400 --height=400 --center \
         --buttons-layout=center --title="$TITLE" --text="$OTHER000"\
         --no-selection  --image=preferences --checklist --list \
         --column="" --column="" --column="" "${OTHER_LIST_INT[@]}")"
@@ -490,7 +490,7 @@ other_apps_int() {
 
 other_apps_sec() {
 
-    oth_sec="$(yad  --width=400 --center \
+    oth_sec="$(yad  --width=400 --height=400 --center \
         --buttons-layout=center --title="$TITLE" --text="$OTHER001"\
         --no-selection  --image=preferences --checklist --list \
         --column="" --column="" --column="" "${OTHER_LIST_SEC[@]}")"
@@ -507,7 +507,7 @@ other_apps_sec() {
 
 other_apps_med() {
 
-    oth_med="$(yad  --width=400 --center \
+    oth_med="$(yad  --width=400 --height=400 --center \
         --buttons-layout=center --title="$TITLE" --text="$OTHER002"\
         --no-selection  --image=preferences --checklist --list \
         --column="" --column="" --column="" "${OTHER_LIST_MED[@]}")"
@@ -524,7 +524,7 @@ other_apps_med() {
 
 other_apps_ofi() {
 
-    oth_ofi="$(yad  --width=400 --center \
+    oth_ofi="$(yad  --width=400 --height=400 --center \
         --buttons-layout=center --title="$TITLE" --text="$OTHER003"\
         --no-selection  --image=preferences --checklist --list \
         --column="" --column="" --column="" "${OTHER_LIST_OFI[@]}")"
@@ -541,7 +541,7 @@ other_apps_ofi() {
 
 other_apps_uti() {
 
-    oth_uti="$(yad  --width=400 --center \
+    oth_uti="$(yad  --width=400 --height=400 --center \
         --buttons-layout=center --title="$TITLE" --text="$OTHER004"\
         --no-selection  --image=preferences --checklist --list \
         --column="" --column="" --column="" "${OTHER_LIST_UTI[@]}")"
@@ -555,7 +555,7 @@ other_apps_uti() {
 
 other_app_set() {
 
-    oth_app="$(yad  --width=400 --center \
+    oth_app="$(yad  --width=400 --height=400 --center \
         --buttons-layout=center --title="$TITLE" --text="$MAIN010" \
         --no-selection  --image=preferences --radiolist --list \
         --column="" --column="" "${OTHER_LIST[@]}")"
@@ -1477,7 +1477,7 @@ install_summary() {
     fi
 
 
-    ins_sum="$(yad --width=400 --center --title="$TITLE" --text="$MAIN008" \
+    ins_sum="$(yad --width=400 --height=700 --center --title="$TITLE" --text="$MAIN008" \
         --buttons-layout=center --image=input-gaming \
         --form  --item-separator="," --scroll \
         --field="$MAIN002\n\t${LAN}:  $lan\n\n\
@@ -1499,6 +1499,8 @@ install_run() {
     (echo "# $INS000"
     reflector --verbose -l 50 -p https --sort rate --save /etc/pacman.d/mirrorlist
 
+    echo "10"
+
     # miro=$(curl -s "https://www.archlinux.org/mirrorlist/?country="${KEYBOARD_LAYOUT^^}"&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' )
     # echo "$miro" > miro.txt
     # cp miro.txt /etc/pacman.d/mirrorlist
@@ -1514,7 +1516,7 @@ install_run() {
         pacstrap /mnt  base base-devel linux-lts linux-firmware bash bash-completion
     fi
 
-
+    echo "30"
 
     echo "# $INS001"
     genfstab -p /mnt >> /mnt/etc/fstab
@@ -1554,6 +1556,8 @@ install_run() {
     echo "en_US.UTF-8 UTF-8" >> /mnt/etc/locale.gen
     arch_chroot "locale-gen"
     export LANG=${lan}
+
+    echo "50"
 
     mkdir -p /mnt/etc/X11/xorg.conf.d/
     echo -e 'Section "InputClass"\n\tIdentifier "system-keyboard"\n\tMatchIsKeyboard "on"\n\tOption "XkbLayout" "'$kbl'"\n\tOption "XkbModel" "'$kbm'"\n\tOption "XkbVariant" ",''"\n\tOption "XkbOptions" "grp:alt_shift_toggle"\nEndSection' > /mnt/etc/X11/xorg.conf.d/00-keyboard.conf
@@ -1622,6 +1626,8 @@ install_run() {
         echo "options nouveau modeset=1\n" > /mnt/etc/modprobe.d/blacklist-nvidia.conf
 
     fi
+
+    echo "70"
 
     if [ "$cup_s" = "$YES" ]
     then
@@ -1692,11 +1698,11 @@ install_run() {
     then
         arch_chroot "pacman -S --noconfirm --needed  sxhkd xdo rxvt-unicode dmenu scrot"
         arch_chroot "su ${user_name} -c 'mkdir -p /home/$user_name/.config/{bspwm,sxhkd}'"
-        arch_chroot "su ${user_name} -c  'cp /usr/share/doc/bspwm/examples/bspwmrc /home/$user_name/.config/bspwm/'"
-        arch_chroot "su ${user_name} -c  'cp /usr/share/doc/bspwm/examples/sxhkdrc /home/$user_name/.config/sxhkd/'"
+        arch_chroot "su ${user_name} -c 'cp /usr/share/doc/bspwm/examples/bspwmrc /home/$user_name/.config/bspwm/'"
+        arch_chroot "su ${user_name} -c 'cp /usr/share/doc/bspwm/examples/sxhkdrc /home/$user_name/.config/sxhkd/'"
     fi
 
-
+    echo "80"
 
     if [ "$boot_sel" = "grub" ]
     then
@@ -1733,7 +1739,7 @@ install_run() {
         fi
     fi
 
-
+    echo "90"
 
     arch_chroot "mkinitcpio -p $kern"
 
@@ -1839,6 +1845,8 @@ main() {
 
 installer_lang
 main
+#  other_app_set
+# install_summary
 # other_app_set
 # kswp
 # install_summary
