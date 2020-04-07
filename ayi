@@ -478,7 +478,7 @@ mate,mate mate-extra,budgie-desktop,cinnamon,deepin,enlightenment,jwm,bspwm,qtil
 
 other_apps_int() {
 
-    oth_int="$(yad  --width=400 --height=400 --center \
+    oth_int="$(yad  --width=400 --height=450 --center \
         --buttons-layout=center --title="$TITLE" --text="$OTHER000"\
         --no-selection  --image=preferences --checklist --list \
         --column="" --column="" --column="" "${OTHER_LIST_INT[@]}")"
@@ -608,7 +608,7 @@ grub_set() {
 
 
 bootloader_set() {
-    bootloader="$(yad  --width=400 --center \
+    bootloader="$(yad  --width=400 --height=250 --center \
         --buttons-layout=center --title="$TITLE" --text="$BTL000" \
         --no-selection  --image=preferences --radiolist --list \
         --column="" --column="" false grub false refind false ${NONE})"
