@@ -1477,7 +1477,7 @@ install_summary() {
     fi
 
 
-    ins_sum="$(yad --width=400 --height=700 --center --title="$TITLE" --text="$MAIN008" \
+    ins_sum="$(yad --width=400 --height=600 --center --title="$TITLE" --text="$MAIN008" \
         --buttons-layout=center --image=input-gaming \
         --form  --item-separator="," --scroll \
         --field="$MAIN002\n\t${LAN}:  $lan\n\n\
@@ -1732,7 +1732,7 @@ install_run() {
             # arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
             rootuuid=$(lsblk -lno UUID ${root_part})
             arch_chroot "refind-install"
-            echo "\"Arch Linux\" \"root=UUID=${rootuuid} rw add_efi_memmap\"" > /mnt/boot/refind_linux.conf
+            echo "\"Arch Linux\" \"root=UUID=${rootuuid} rw add_efi_memmap\"" >> /mnt/boot/refind_linux.conf
             echo "\"Arch Linux Fallback\" \"root=UUID=${rootuuid} rw add_efi_memmap initrd=/initramfs-linux-fallback.img\"" >> /mnt/boot/refind_linux.conf
             echo "\"Arch Linux Terminal\" \"root=UUID=${rootuuid} rw add_efi_memmap systemd.unit=multi-user.target\"" >> /mnt/boot/refind_linux.conf
 
@@ -1868,3 +1868,16 @@ main
 # kernel_shell_cups_set
 # echo $oth_apps
 # echo $oth_apps  | sed "s/ TRUE/;TRUE/g" | tr ";" "\n" | cut -d '|' -f2 | tr '\n' " "
+
+
+# ins  summery
+
+
+
+
+
+
+
+
+
+
