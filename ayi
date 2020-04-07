@@ -1602,7 +1602,7 @@ install_run() {
 
     if [ "$kern" = "linux" -a "$grc" = "virtualbox" ]
     then
-        pacstrap /mnt virtualbox-guest-modules-arch virtualbox-guest-utils linux-headers
+        pacstrap /mnt virtualbox-guest-dkms virtualbox-guest-utils linux-headers 
         echo -e "vboxguest\nvboxsf\nvboxvideo" > /mnt/etc/modules-load.d/virtualbox.conf
     elif [ "$kern" = "linux-lts" -a "$grc" = "virtualbox" ]
     then
