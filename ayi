@@ -80,6 +80,8 @@ installer_lang() {
     MAIN011=$(GETTEXT "Bootloader settings")
     MAIN012=$(GETTEXT "Partition settings")
     MAIN013=$(GETTEXT "Install")
+    MAIN014=$(GETTEXT "Installation is complete.")
+    MAIN014=$(GETTEXT "Summary")
 
     LAN=$(GETTEXT "Language")
     KBL=$(GETTEXT "Keyboard layputs")
@@ -255,10 +257,13 @@ Partition and format your hard disk, as this is not done by the installer!")
     INS004=$(GETTEXT "Set timezone...")
     INS005=$(GETTEXT "Install default applications...")
     INS006=$(GETTEXT "Set video card...")
-    INS00=$(GETTEXT "")
-    INS00=$(GETTEXT "")
-    INS00=$(GETTEXT "")
-    INS00=$(GETTEXT "")
+    INS007=$(GETTEXT "Create a swap file...")
+    INS008=$(GETTEXT "Other install...")
+    INS009=$(GETTEXT "Install base...")
+    INS010=$(GETTEXT "Installing bootloader...")
+    INS011=$(GETTEXT "Installation is complete!")
+    # INS00=$(GETTEXT "")
+    # INS00=$(GETTEXT "")
 
 
             
@@ -406,11 +411,11 @@ pass_check() {
     
     if [ "$userpass1" != "$userpass2" ]
     then
-        yad --image=error  --buttons-layout=center --text="$ERR_USER_PASS"
+        yad --image=error --title="$TITLE"  --buttons-layout=center --text="$ERR_USER_PASS"
         user_root_set
     elif [ "$rootpass1" != "$rootpass2" ]
     then
-        yad --image=error --buttons-layout=center --text="$ERR_ROOT_PASS"
+        yad --image=error --title="$TITLE" --buttons-layout=center --text="$ERR_ROOT_PASS"
         user_root_set
     fi
 }
@@ -604,7 +609,7 @@ grub_set() {
 
 bootloader_set() {
     bootloader="$(yad  --width=400 --center \
-        --buttons-layout=center --title="$TITLE" --text="$BTl000" \
+        --buttons-layout=center --title="$TITLE" --text="$BTL000" \
         --no-selection  --image=preferences --radiolist --list \
         --column="" --column="" false grub false refind false ${NONE})"
 
@@ -631,7 +636,7 @@ auto_part() {
     dev="$(echo "$device" | cut -d "|" -f2)"
     echo "$dev"
 
-    yad --image=help  --buttons-layout=center --text="$QUEPART000 $dev $QUEPART001" --button="${NO}!gtk-no:1" --button="${YES}!gtk-yes:0"
+    yad --image=help --title="$TITLE" --buttons-layout=center --text="$QUEPART000 $dev $QUEPART001" --button="${NO}!gtk-no:1" --button="${YES}!gtk-yes:0"
     ans="$?"
 
     if [ "$ans" = "0" ]
@@ -704,7 +709,7 @@ auto_part() {
 
 man_part() {
 
-    yad --image=help  --buttons-layout=center --text="$MANQ000" --button="${NO}!gtk-no:1" --button="${YES}!gtk-yes:0"
+    yad --image=help --title="$TITLE" --buttons-layout=center --text="$MANQ000" --button="${NO}!gtk-no:1" --button="${YES}!gtk-yes:0"
     ans1="$?"
 
     if [ "$ans1" = "0" ]
@@ -772,18 +777,18 @@ check_kswpnofile() {
     # Root csatolás nem lehet üres...
     if [ "$root_part" = "${NONE}" ]
     then
-        yad --image=error  --buttons-layout=center --text="$ERROR000"
+        yad --image=error --title="$TITLE" --buttons-layout=center --text="$ERROR000"
         kswpnofile
         return 1
     # Ha swap partíció, ez se lehet üres...
     elif [ "$swap_part" = "${NONE}" ]
     then
-        yad --image=error  --buttons-layout=center --text="$ERROR001"
+        yad --image=error --title="$TITLE" --buttons-layout=center --text="$ERROR001"
         kswpnofile
         return 1
     elif [ "$SYSTEM" = "UEFI" -a "$bootefi_part" = "${NONE}" ]
     then
-        yad --image=error  --buttons-layout=center --text="$ERROR002"
+        yad --image=error --title="$TITLE" --buttons-layout=center --text="$ERROR002"
         kswpnofile
         return 1
     fi
@@ -858,7 +863,7 @@ check_kswpnofile() {
         "$srvszamlal" -gt "1" -o "$tmpszamlal" -gt "1" -o \
         "$usrszamlal" -gt "1" -o "$varszamlal" -gt "1" ]
         then 
-            yad --image=error  --buttons-layout=center --text="$ERROR003"
+            yad --image=error --title="$TITLE" --buttons-layout=center --text="$ERROR003"
             kswpnofile
             return 1
     fi
@@ -987,7 +992,7 @@ check_kswpf() {
     # Root csatolás nem lehet üres...
     if [ "$root_part" = "${NONE}" ]
     then
-        yad --image=error  --buttons-layout=center --text="$ERROR000"
+        yad --image=error --title="$TITLE" --buttons-layout=center --text="$ERROR000"
         kswpf
         return 1
     # Ha swap partíció, ez se lehet üres...
@@ -998,7 +1003,7 @@ check_kswpf() {
     #     return 1
     elif [ "$SYSTEM" = "UEFI" -a "$bootefi_part" = "${NONE}" ]
     then
-        yad --image=error  --buttons-layout=center --text="$ERROR002"
+        yad --image=error --title="$TITLE" --buttons-layout=center --text="$ERROR002"
         kswpf
         return 1
     fi
@@ -1073,7 +1078,7 @@ check_kswpf() {
         "$srvszamlal" -gt "1" -o "$tmpszamlal" -gt "1" -o \
         "$usrszamlal" -gt "1" -o "$varszamlal" -gt "1" ]
         then 
-            yad --image=error  --buttons-layout=center --text="$ERROR003"
+            yad --image=error --title="$TITLE" --buttons-layout=center --text="$ERROR003"
             kswpf
             return 1
     fi
@@ -1161,7 +1166,7 @@ kswpfsize() {
     if [ "$?" = "0" ]
     then
         swapfile="yes"
-        (echo "# Swap fájl készítése..."
+        (echo "# $INS007"
         touch /mnt/swapfile
         dd if=/dev/zero of=/mnt/swapfile bs=1M count=${swaps}
         chmod 600 /mnt/swapfile
@@ -1238,7 +1243,7 @@ check_kswpno() {
     # Root csatolás nem lehet üres...
     if [ "$root_part" = "${NONE}" ]
     then
-        yad --image=error  --buttons-layout=center --text="$ERROR000"
+        yad --image=error --title="$TITLE" --buttons-layout=center --text="$ERROR000"
         kswpno
         return 1
     # Ha swap partíció, ez se lehet üres...
@@ -1249,7 +1254,7 @@ check_kswpno() {
     #     return 1
     elif [ "$SYSTEM" = "UEFI" -a "$bootefi_part" = "${NONE}" ]
     then
-        yad --image=error  --buttons-layout=center --text="$ERROR002"
+        yad --image=error --title="$TITLE" --buttons-layout=center --text="$ERROR002"
         kswpno
         return 1
     fi
@@ -1324,7 +1329,7 @@ check_kswpno() {
         "$srvszamlal" -gt "1" -o "$tmpszamlal" -gt "1" -o \
         "$usrszamlal" -gt "1" -o "$varszamlal" -gt "1" ]
         then 
-            yad --image=error  --buttons-layout=center --text="$ERROR003"
+            yad --image=error --title="$TITLE" --buttons-layout=center --text="$ERROR003"
             kswpno
             return 1
     fi
@@ -1477,7 +1482,7 @@ install_summary() {
     fi
 
 
-    ins_sum="$(yad --width=400 --height=600 --center --title="$TITLE" --text="$MAIN008" \
+    ins_sum="$(yad --width=400 --height=600 --center --title="$TITLE" --text="$MAIN015" \
         --buttons-layout=center --image=input-gaming \
         --form  --item-separator="," --scroll \
         --field="$MAIN002\n\t${LAN}:  $lan\n\n\
@@ -1507,7 +1512,7 @@ install_run() {
 
     # pacman -Syy
 
-    echo "# Telepítés base..."
+    echo "# $INS009"
     if [ "$kern" = "linux" ]
     then
         pacstrap /mnt base base-devel linux linux-firmware bash bash-completion
@@ -1690,7 +1695,7 @@ install_run() {
         arch_chroot "pacman -S --noconfirm --needed $shel_l;chsh -s /usr/bin/$shel_l" 
     fi
 
-    echo "# other install..."
+    echo "# $INS008"
 
     arch_chroot "pacman -S --noconfirm --needed $pack_int $pack_sec $pack_med $pack_ofi $pack_uti"
     
@@ -1708,13 +1713,13 @@ install_run() {
     then
         if [ "$SYSTEM" = 'BIOS' ]
         then
-            echo "# Bootloader telepítése..."
+            echo "# $INS010"
             pacstrap /mnt grub
             #arch_chroot "os-prober"
             arch_chroot "grub-install --target=i386-pc $grb_dev"
             arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
         else
-            echo "# Bootloader telepítés..."
+            echo "# $INS010"
 
             pacstrap /mnt grub efibootmgr
             #arch_chroot "os-prober"
@@ -1726,7 +1731,7 @@ install_run() {
     then
         if [ "$SYSTEM" = 'UEFI' ]
         then
-            echo "# Bootloader telepítés..."
+            echo "# $INS010"
 
             pacstrap /mnt refind-efi efibootmgr
             # arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
@@ -1746,10 +1751,10 @@ install_run() {
     umount -R /mnt
 
     echo "100"
-    echo "# A telepítés befejeződött!"
+    echo "# $INS011"
     ) | yad --title="$TITLE" --width=400 --height=250 --progress --auto-close --enable-log --log-expanded --no-buttons
 
-    yad --image=info  --buttons-layout=center --text="$ERROR001"
+    yad --image=info --title="$TITLE" --buttons-layout=center --text="$MAIN014"
     reboot
 }
 
