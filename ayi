@@ -81,7 +81,7 @@ installer_lang() {
     MAIN012=$(GETTEXT "Partition settings")
     MAIN013=$(GETTEXT "Install")
     MAIN014=$(GETTEXT "Installation is complete.")
-    MAIN014=$(GETTEXT "Summary")
+    MAIN015=$(GETTEXT "Summary")
 
     LAN=$(GETTEXT "Language")
     KBL=$(GETTEXT "Keyboard layputs")
@@ -1754,7 +1754,7 @@ install_run() {
     echo "# $INS011"
     ) | yad --title="$TITLE" --width=400 --height=250 --progress --auto-close --enable-log --log-expanded --no-buttons
 
-    yad --image=info --title="$TITLE" --buttons-layout=center --text="$MAIN014"
+    yad --image=info --title="$TITLE" --buttons-layout=center --text="$INS011"
     reboot
 }
 
