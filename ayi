@@ -372,7 +372,7 @@ hname() {
     hsname="$(yad --width=400 --center --title="$TITLE" --text="$HSNM" \
         --buttons-layout=center --image=network \
         --form --field="$HSNM1" \
-        "archyad" )"
+        "magyarch" )"
 
     unset MAIN_LIST 
     MAIN_LIST=("false" "$MAIN001" "false" "$MAIN012" "false" "$MAIN002" "false" "$MAIN003" "false" "$MAIN004" \
@@ -1557,7 +1557,7 @@ install_run() {
     echo "LC_PAPER=\"${lan}\"" >> /mnt/etc/locale.conf
     echo "LC_TELEPHONE=\"${lan}\"" >> /mnt/etc/locale.conf
     echo "LC_TIME=\"${lan}\"" >> /mnt/etc/locale.conf
-    echo "${lan} UTF-8" > /mnt/etc/locale.gen
+    echo "${lan} UTF-8" >> /mnt/etc/locale.gen
     echo "en_US.UTF-8 UTF-8" >> /mnt/etc/locale.gen
     arch_chroot "locale-gen"
     export LANG=${lan}
@@ -1737,7 +1737,7 @@ install_run() {
             # arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
             rootuuid=$(lsblk -lno UUID ${root_part})
             arch_chroot "refind-install"
-            echo "\"Arch Linux\" \"root=UUID=${rootuuid} rw add_efi_memmap\"" >> /mnt/boot/refind_linux.conf
+            echo "\"Arch Linux\" \"root=UUID=${rootuuid} rw add_efi_memmap\"" > /mnt/boot/refind_linux.conf
             echo "\"Arch Linux Fallback\" \"root=UUID=${rootuuid} rw add_efi_memmap initrd=/initramfs-linux-fallback.img\"" >> /mnt/boot/refind_linux.conf
             echo "\"Arch Linux Terminal\" \"root=UUID=${rootuuid} rw add_efi_memmap systemd.unit=multi-user.target\"" >> /mnt/boot/refind_linux.conf
 
@@ -1811,71 +1811,9 @@ main() {
 }
 
 
-# yad --image "dialog-question" --title "$TITLE" \
-#  --button="$NO"!gtk-no:1 --button="$YES"!gtk-yes:0  --buttons-layout=center \
-#  --text "$TITLE" --height=150 --width=400 --center
-# 
-# if [ "$?" = "1" ]
-#     then echo "$NO"
-# else
-#     echo "$YES"
-# fi
-# 
-# a=$(yad --width=400 --title="" --text="Please enter your details:" \
-# --image="/usr/share/icons/Tango/scalable/emotes/face-smile.svg" \
-# --form --item-separator="," \
-# --field="Keyboard layputs":CBE \
-# --field="Keyboard modelss":CBE \
-# "$(localectl list-x11-keymap-layouts | awk '{ printf ""$0"," }' | sed 's/hu/^hu/')" \
-# "$(localectl list-x11-keymap-models | awk '{ printf ""$0"," }')")
-# 
-# NAME=`echo $line | awk -F',' '{print $1}'`
-# OCCUPATION=`echo $line | awk -F',' '{print $2}'`
-# echo $NAME $OCCUPATION
-# }
-# installer_lang
-
-# echo "\"Arch Linux         \" \"root=UUID=${rootuuid} rw add_efi_memmap\"" > /mnt/boot/refind_linux.conf
-# echo "\"Arch Linux Fallback\" \"root=UUID=${rootuuid} rw add_efi_memmap initrd=/initramfs-linux-fallback.img\"" >> /mnt/boot/refind_linux.conf
-# echo "\"Arch Linux Terminal\" \"root=UUID=${rootuuid} rw add_efi_memmap systemd.unit=multi-user.target\"" >> /mnt/boot/refind_linux.conf
-# FALSE "lightdm" FALSE "lxdm" FALSE "sddm" FALSE "gdm" FALSE "Alapértelmezett" --height=250 --width=300)
-# keepassx2,veracrypt,gufw,clamav,clamtk
-# FALSE "chromium " FALSE "midori " FALSE "netsurf " FALSE "filezilla " FALSE "opera " FALSE "evolution " FALSE "geary " FALSE "thunderbird " FALSE "transmission-gtk " FALSE "transmission-qt " FALSE "qbittorrent " FALSE "rtorrent " FALSE "hexchat " FALSE "vivaldi-snapshot " --height=400 --width=400 > int2.txt
-# FALSE "kodi " FALSE "gimp " FALSE "vlc " FALSE "totem " FALSE "parole " FALSE "audacious " FALSE "clementine " FALSE "gthumb " FALSE "shotwell " FALSE "ristretto " FALSE "gpicview " FALSE "brasero " FALSE "audacity " FALSE "simplescreenrecorder " FALSE "xfburn " FALSE "kdenlive " 
-# "false" "calligra" "false" "abiword" "false" "gnumeric" "false" "pdfmod" "false" "evince" "false" "epdfview" "false" "calibre" "false" "fbreader"
-
-# FALSE "steam" FALSE "lutris"
-
-# FALSE "paper-gtk-theme-git" FALSE "numix-gtk-theme" FALSE "faenza-icon-theme" FALSE "arc-icon-theme" FALSE "papirus-icon-theme" FALSE "ttf-ubuntu-font-family" FALSE "ttf-inconsolata"
-
 installer_lang
 main
-#  other_app_set
-# install_summary
-# other_app_set
-# kswp
-# install_summary
-# kswpfsize
-# system_lang
-# kswpno
-# man_part
-# auto_part
-# yad --image=help  --buttons-layout=center --text="$QUEPART" --button="${NO}!gtk-no:1" --button="${YES}!gtk-yes:0"
-# echo "$?"
-# echo $y
 
-# partition_set
-# bootloader_set
-# other_apps_set
-# dm_desktop_set
-# graphics_set
-# user_root_set
-# kernel_shell_cups_set
-# echo $oth_apps
-# echo $oth_apps  | sed "s/ TRUE/;TRUE/g" | tr ";" "\n" | cut -d '|' -f2 | tr '\n' " "
-
-
-# ins  summery
 
 
 
