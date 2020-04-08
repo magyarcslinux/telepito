@@ -224,7 +224,7 @@ installer_lang() {
     # TER014=$(GETTEXT "")
     # TER015=$(GETTEXT "")
 
-    OTHER_LIST_TER("false" "feh" "$TER000" "false" "vim" "$TER001" "false" "nano" "$TER002" \
+    OTHER_LIST_TER=("false" "feh" "$TER000" "false" "vim" "$TER001" "false" "nano" "$TER002" \
         "false" "xwallpaper" "$TER003" "false" "dunst" "$TER004" "false" "neomutt" "$TER005" \
         "false" "zathura" "$TER006" "false" "ranger" "$TER007" "false" "qutebrowser" "$TER008" \
         "false" "surf" "$TER009" "false" "alacritty" "$TER010")
