@@ -113,9 +113,10 @@ installer_lang() {
     OTHER002=$(GETTEXT "Media")
     OTHER003=$(GETTEXT "Office")
     OTHER004=$(GETTEXT "Utility")
+    OTHER005=$(GETTEXT "Terminal base applications")
 
     OTHER_LIST=("true" "$OTHER000" "false" "$OTHER001" "false" "$OTHER002" \
-        "false" "$OTHER003" "false" "$OTHER004" )
+        "false" "$OTHER003" "false" "$OTHER004" "false" "$OTHER005")
 
 
     INTER000=$(GETTEXT "A web browser built for speed, simplicity, and security")
@@ -204,6 +205,29 @@ installer_lang() {
         "false" "gparted" "$UTI002"  "false" "redshift" "$UTI003" "false" "geany" "$UTI004" \
         "false" "parcellite" "$UTI005" "false" "grsync" "$UTI006" "false" "guake" "$UTI007" \
         "false" "ntfs-3g" "$UTI008" "false" "btrfs-progs" "$UTI009")
+
+
+    TER000=$(GETTEXT "Fast and light imlib2-based image viewer")
+    TER001=$(GETTEXT "Vi Improved, a highly configurable, improved version of the vi text editor")
+    TER002=$(GETTEXT "Pico editor clone with enhancements")
+    TER003=$(GETTEXT "Wallpaper setting utility for X")
+    TER004=$(GETTEXT "Customizable and lightweight notification-daemon")
+    TER005=$(GETTEXT "A version of mutt with added features")
+    TER006=$(GETTEXT "Minimalistic document viewer")
+    TER007=$(GETTEXT "Simple, vim-like file manager")
+    TER008=$(GETTEXT "A keyboard-driven, vim-like browser based on PyQt5")
+    TER009=$(GETTEXT "A simple web browser based on WebKit/GTK+.")
+    TER010=$(GETTEXT "A cross-platform, GPU-accelerated terminal emulator")
+    # TER011=$(GETTEXT "")
+    # TER012=$(GETTEXT "")
+    # TER013=$(GETTEXT "")
+    # TER014=$(GETTEXT "")
+    # TER015=$(GETTEXT "")
+
+    OTHER_LIST_TER("false" "feh" "$TER000" "false" "vim" "$TER001" "false" "nano" "$TER002" \
+        "false" "xwallpaper" "$TER003" "false" "dunst" "$TER004" "false" "neomutt" "$TER005" \
+        "false" "zathura" "$TER006" "false" "ranger" "$TER007" "false" "qutebrowser" "$TER008" \
+        "false" "surf" "$TER009" "false" "alacritty" "$TER010")
 
     PART000=$(GETTEXT "Automatic partitioning")
     PART001=$(GETTEXT "Manual partitioning")
@@ -489,7 +513,7 @@ other_apps_int() {
     unset OTHER_LIST
 
     OTHER_LIST=("false" "$OTHER000" "true" "$OTHER001" "false" "$OTHER002" \
-        "false" "$OTHER003" "false" "$OTHER004" )
+        "false" "$OTHER003" "false" "$OTHER004" "false" "$OTHER005")
 }
 
 
@@ -506,7 +530,7 @@ other_apps_sec() {
     unset OTHER_LIST
 
     OTHER_LIST=("false" "$OTHER000" "false" "$OTHER001" "true" "$OTHER002" \
-        "false" "$OTHER003" "false" "$OTHER004" )
+        "false" "$OTHER003" "false" "$OTHER004" "false" "$OTHER005")
 }
 
 
@@ -523,7 +547,7 @@ other_apps_med() {
    unset OTHER_LIST
 
    OTHER_LIST=("false" "$OTHER000" "false" "$OTHER001" "false" "$OTHER002" \
-        "true" "$OTHER003" "false" "$OTHER004" )
+        "true" "$OTHER003" "false" "$OTHER004"  "false" "$OTHER005")
 }
 
 
@@ -540,7 +564,7 @@ other_apps_ofi() {
     unset OTHER_LIST
 
     OTHER_LIST=("false" "$OTHER000"  "false" "$OTHER001" "false" "$OTHER002" \
-        "false" "$OTHER003" "true" "$OTHER004" )
+        "false" "$OTHER003" "true" "$OTHER004" "false" "$OTHER005")
 }
 
 
@@ -553,9 +577,24 @@ other_apps_uti() {
 
     pack_uti=$(echo $oth_uti  echo $a | sed "s/ TRUE/;TRUE/g" | tr ";" "\n" | cut -d '|' -f2 | tr '\n' " ")
 
+     unset OTHER_LIST
+
+    OTHER_LIST=("false" "$OTHER000"  "false" "$OTHER001" "false" "$OTHER002" \
+        "false" "$OTHER003" "false" "$OTHER004" "true" "$OTHER005")
+
     
    # OTHER_LIST=("false" "$OTHER000" "false" "$OTHER001" "false" "$OTHER002" \
    #     "false" "$OTHER003" "true" "$OTHER004" )
+}
+
+other_apps_ter() {
+
+    oth_ter="$(yad  --width=400 --height=400 --center \
+        --buttons-layout=center --title="$TITLE" --text="$OTHER005"\
+        --no-selection  --image=preferences --checklist --list \
+        --column="" --column="" --column="" "${OTHER_LIST_TER[@]}")"
+
+    pack_ter=$(echo $oth_ter  echo $a | sed "s/ TRUE/;TRUE/g" | tr ";" "\n" | cut -d '|' -f2 | tr '\n' " ")
 }
 
 other_app_set() {
@@ -583,7 +622,11 @@ other_app_set() {
     
     elif [ "$(echo "$oth_app" | cut -d "|" -f2)" = "$OTHER004" ]
     then
-        other_apps_uti
+        other_apps_uti;other_app_set
+
+    elif [ "$(echo "$oth_app" | cut -d "|" -f2)" = "$OTHER005" ]
+    then
+        other_apps_ter
     fi
     
     unset MAIN_LIST
@@ -1697,7 +1740,12 @@ install_run() {
 
     echo "# $INS008"
 
-    arch_chroot "pacman -S --noconfirm --needed $pack_int $pack_sec $pack_med $pack_ofi $pack_uti"
+    arch_chroot "pacman -S --noconfirm --needed $pack_int"
+    arch_chroot "pacman -S --noconfirm --needed $pack_sec"
+    arch_chroot "pacman -S --noconfirm --needed $pack_med"
+    arch_chroot "pacman -S --noconfirm --needed $pack_ofi"
+    arch_chroot "pacman -S --noconfirm --needed $pack_uti"
+    arch_chroot "pacman -S --noconfirm --needed $pack_ter"
     
     if [ "$de_set" = "bspwm" ]
     then
