@@ -221,7 +221,7 @@ kswpnofile() {
                     mount $var_part /mnt/var
                 fi
                 # swap
-                if [ "$var_part" != "Nincs" ]
+                if [ "$swap_part" != "Nincs" ]
                     then mkswap $swap_part
                     swapon $swap_part
                 fi
