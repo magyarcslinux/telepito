@@ -1581,7 +1581,7 @@ install_run() {
     fi
 
     echo "" >> /mnt/etc/pacman.conf;echo "[multilib]" >> /mnt/etc/pacman.conf;echo "Include = /etc/pacman.d/mirrorlist" >> /mnt/etc/pacman.conf
-    echo "" >> /mnt/etc/pacman.conf;echo "[magyarch_repo]" >> /mnt/etc/pacman.conf;echo "SigLevel = Optional TrustAll" >> /mnt/etc/pacman.conf;echo "Server = https://raw.github.com/magyarchlinux/magyarch_repo/master/X86_64" >> /mnt/etc/pacman.conf
+    echo "" >> /mnt/etc/pacman.conf;echo "[magyarch_repo]" >> /mnt/etc/pacman.conf;echo "SigLevel = Optional TrustedOnly" >> /mnt/etc/pacman.conf;echo "Server = https://magyarchlinux.github.io/$repo/$arch" >> /mnt/etc/pacman.conf
 
     arch_chroot "pacman -Syy"
 
