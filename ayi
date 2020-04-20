@@ -1566,8 +1566,8 @@ install_run() {
 
     if [ "$de_set" = "bspwm" ]
     then
-        arch_chroot "mkdir -p /etc/skel"
-        arch_chroot "git clone https://github.com/bazeeel/baz-bspwm.git"
+        arch_chroot "mkdir -p /mnt/etc/skel"
+        arch_chroot "git clone https://github.com/bazeeel/baz-bspwm.git /mnt/etc/skel/"
     fi
 
     echo "30"
