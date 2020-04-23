@@ -1749,7 +1749,7 @@ install_run() {
 
     elif [ "$de_set" = "xfce4 (MagyArch)" ]
     then
-        ch_chroot "pacman -S --noconfirm --needed xfce4 xfce4-goodies "
+        arch_chroot "pacman -S --noconfirm --needed xfce4 xfce4-goodies "
         arch_chroot "cp -rf /mnt/mnt/usr/share/backgrounds/magyarch/ /usr/share/backgrounds/"
         arch_chroot "cp -rf /mnt/mnt/usr/share/icons/braincolor-green /usr/share/icons/"
         arch_chroot "cp -rf /mnt/mnt/usr/share/themes/MagyArch-dark /usr/share/themes/"
