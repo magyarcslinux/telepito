@@ -1718,9 +1718,9 @@ install_run() {
         then
             arch_chroot "pacman -S --noconfirm --needed sddm "
             arch_chroot "systemctl enable sddm.service"
-        # else 
-        #     arch_chroot "pacman -S --noconfirm --needed lightdm lightdm-gtk-greeter-settings lightdm-gtk-greeter "
-        #     arch_chroot "systemctl enable lightdm.service"
+        else 
+            arch_chroot "pacman -S --noconfirm --needed lightdm lightdm-gtk-greeter-settings lightdm-gtk-greeter "
+            arch_chroot "systemctl enable lightdm.service"
         fi
     
     elif [ "$dm_set" = "lightdm" ]
@@ -1766,6 +1766,9 @@ install_run() {
     then
         #ch_chroot "pacman -S --noconfirm --needed  "
         arch_chroot "pacman -S --noconfirm --needed  bspwm sxhkd xdo rxvt-unicode scrot"
+        arch_chroot "su ${user_name} -c 'mkdir -p /home/$user_name/.config/{bspwm,sxhkd}'"
+        arch_chroot "su ${user_name} -c 'cp /usr/share/doc/bspwm/examples/bspwmrc /home/$user_name/.config/bspwm/'"
+        arch_chroot "su ${user_name} -c 'cp /usr/share/doc/bspwm/examples/sxhkdrc /home/$user_name/.config/sxhkd/'"
 
     elif [ "$de_set" = "bspwm (Xeoncpu)" ]
     then
