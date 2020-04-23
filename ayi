@@ -489,8 +489,8 @@ dm_desktop_set() {
         --field="$DMDE001":CB \
         --field="$DMDE002":CB \
         "^lightdm,lxdm,sddm,gdm,${DEFAULT}" \
-        "gnome,gnome gnome-extra,plasma,plasma kde-applications,xfce4,xfce4 xfce4-goodies,lxde,lxqt, \
-mate,mate mate-extra,budgie-desktop,cinnamon,deepin,enlightenment,jwm,bspwm,qtile,i3,xmonad,openbox")"
+        "gnome,plasma,xfce4,xfce4 (MagyArch),lxde,lxqt, \
+mate,budgie-desktop,cinnamon,deepin,jwm,bspwm,bspwm (Xeoncpu),qtile,i3,xmonad,openbox")"
 
     unset MAIN_LIST
     
@@ -1565,11 +1565,18 @@ install_run() {
         pacstrap /mnt  base base-devel linux-lts linux-firmware git
     fi
 
-    if [ "$de_set" = "bspwm" ]
+    if [ "$de_set" = "bspwm (Xeoncpu)" ]
     then
         arch_chroot "mkdir -p /mnt/mnt/etc/skel"
         arch_chroot "git clone https://github.com/bazeeel/baz-bspwm.git /mnt/mnt/etc/skel/"
         arch_chroot "cp -rfT /mnt/mnt/etc/skel/ /etc/skel/"
+    fi
+
+    if [ "$de_set" = "xfce4 (MagyArch)" ]
+    then
+        arch_chroot "mkdir -p /mnt/mnt/etc/skel"
+        arch_chroot "git clone https://github.com/magyarchlinux/magyarch_xfce4.git /mnt/mnt/etc/skel/"
+        arch_chroot "cp -rf /mnt/mnt/etc/skel/.config/ /etc/skel/"
     fi
 
     echo "30"
@@ -1694,15 +1701,9 @@ install_run() {
         arch_chroot "systemctl enable org.cups.cupsd.service"
     fi
 
-    arch_chroot "pacman -S --noconfirm --needed $de_set "
-
-
     if [ "$dm_set"  = "$DEFAULT" ]
     then
         if [ "$de_set" = "gnome" ]
-        then
-            arch_chroot "systemctl enable gdm.service"
-        elif [ "$de_set" = "gnome gnome-extra" ]
         then
             arch_chroot "systemctl enable gdm.service"
         elif [ "$de_set" = "budgie-desktop" ]
@@ -1714,10 +1715,6 @@ install_run() {
             arch_chroot "pacman -S --noconfirm --needed lxdm-gtk3 "
             arch_chroot "systemctl enable lxdm.service"
         elif [ "$de_set" = "plasma" ]
-        then
-            arch_chroot "pacman -S --noconfirm --needed sddm "
-            arch_chroot "systemctl enable sddm.service"
-        elif [ "$de_set" = "plasma kde-applications" ]
         then
             arch_chroot "pacman -S --noconfirm --needed sddm "
             arch_chroot "systemctl enable sddm.service"
@@ -1737,7 +1734,51 @@ install_run() {
 
     arch_chroot "systemctl enable NetworkManager"
 
+
     
+    if [ "$de_set" = "gnome" ]
+    then
+        ch_chroot "pacman -S --noconfirm --needed gnome gnome-extra "
+    elif [ "$de_set" = "plasma" ]
+    then
+        ch_chroot "pacman -S --noconfirm --needed plasma kde-applications "
+    
+    elif [ "$de_set" = "xfce4" ]
+    then
+        ch_chroot "pacman -S --noconfirm --needed xfce4 xfce4-goodies "
+
+    elif [ "$de_set" = "xfce4 (MagyArch)" ]
+    then
+        ch_chroot "pacman -S --noconfirm --needed xfce4 xfce4-goodies "
+        arch_chroot "cp -rf /mnt/mnt/usr/share/backgrounds/magyarch/ /usr/share/backgrounds/"
+        arch_chroot "cp -rf /mnt/mnt/usr/share/icons/braincolor-green /usr/share/icons/"
+        arch_chroot "cp -rf /mnt/mnt/usr/share/themes/MagyArch-dark /usr/share/themes/"
+        arch_chroot "cp -rf /mnt/mnt/etc/lightdm/lightdm-gtk-greeter.conf /etc/lightdm/"
+        arch_chroot "cp -rf /mnt/mnt/usr/share/themes/MagyArch-braincolor /usr/share/themes/"
+
+        # arch_chroot "rm -rf /mnt/mnt"
+
+    elif [ "$de_set" = "mate" ]
+    then
+        ch_chroot "pacman -S --noconfirm --needed mate mate-extra "
+
+    elif [ "$de_set" = "bspwm" ]
+    then
+        #ch_chroot "pacman -S --noconfirm --needed  "
+        arch_chroot "pacman -S --noconfirm --needed  sxhkd xdo rxvt-unicode scrot"
+
+    elif [ "$de_set" = "bspwm (Xeoncpu)" ]
+    then
+        #ch_chroot "pacman -S --noconfirm --needed  "
+        arch_chroot "pacman -S --noconfirm --needed  sxhkd xdo rxvt-unicode scrot"
+        arch_chroot "pacman -S --noconfirm --needed  picom alsi ttf-jetbrains-mono xorg-server xorg-xwininfo xorg-xinit xorg-xsetroot sxhkd ttf-joypixels ttf-linux-libertine lxappearance xdo vifm feh sublime-text-dev ed tree arandr bc calcurse dmenu2 xorg-xprop dosfstools libnotify dunst exfat-utils sxiv xwallpaper ffmpeg gnome-keyring polkit-gnome neovim spotify discord mpd mpc mpv ncmpcpp networkmanager firefox ttf-font-awesome-4 ttf-bitstream-vera ttf-dejavu ntfs-3g pulseaudio pulseaudio-alsa pulsemixer pulseaudio-equalizer-ladspa imagemagick sutils-git htop-vim-git xtitle-git maim socat unclutter unrar unzip urlscan w3m xcape xclip xdotool xorg-xdpyinfo youtube-dl zathura zathura-pdf-mupdf poppler mediainfo atool fzf highlight rofi xorg-xbacklight task-spooler polybar docx2txt odt2txt urxvt-perls rxvt-unicode"
+        arch_chroot "rm -rf /mnt/mnt"
+        arch_chroot "cd /home/$user_name/; rm -rf -git/ LICENSE README.md git.sh setup-git.sh "
+    else
+        arch_chroot "pacman -S --noconfirm --needed $de_set "
+
+    fi
+
 
     if [ "$shel_l" = "zsh" ]
     then
@@ -1758,16 +1799,6 @@ install_run() {
     arch_chroot "pacman -S --noconfirm --needed $pack_uti"
     arch_chroot "pacman -S --noconfirm --needed $pack_ter"
     
-    if [ "$de_set" = "bspwm" ]
-    then
-        arch_chroot "pacman -S --noconfirm --needed  sxhkd xdo rxvt-unicode scrot"
-        arch_chroot "pacman -S --noconfirm --needed  picom alsi ttf-jetbrains-mono xorg-server xorg-xwininfo xorg-xinit xorg-xsetroot sxhkd ttf-joypixels ttf-linux-libertine lxappearance xdo vifm feh sublime-text-dev ed tree arandr bc calcurse dmenu2 xorg-xprop dosfstools libnotify dunst exfat-utils sxiv xwallpaper ffmpeg gnome-keyring polkit-gnome neovim spotify discord mpd mpc mpv ncmpcpp networkmanager firefox ttf-font-awesome-4 ttf-bitstream-vera ttf-dejavu ntfs-3g pulseaudio pulseaudio-alsa pulsemixer pulseaudio-equalizer-ladspa imagemagick sutils-git htop-vim-git xtitle-git maim socat unclutter unrar unzip urlscan w3m xcape xclip xdotool xorg-xdpyinfo youtube-dl zathura zathura-pdf-mupdf poppler mediainfo atool fzf highlight rofi xorg-xbacklight task-spooler polybar docx2txt odt2txt urxvt-perls rxvt-unicode"
-
-
-        arch_chroot "rm -rf /mnt/mnt"
-        arch_chroot "cd /home/$user_name/; rm -rf -git/ LICENSE README.md git.sh setup-git.sh "
-        # arch_chroot "su ${user_name} -c 'cp /usr/share/doc/bspwm/examples/sxhkdrc /home/$user_name/.config/sxhkd/'"
-    fi
 
     echo "80"
 
