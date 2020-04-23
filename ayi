@@ -1576,7 +1576,7 @@ install_run() {
     then
         # arch_chroot "mkdir -p /mnt/mnt/etc/skel"
         git clone https://github.com/magyarchlinux/magyarch_xfce4.git 
-        cp -rf magyarch_xfce4/etc/skel/.config/ /mnt/etc/skel/
+        cp -rf magyarch_xfce4/.config/ /mnt/etc/skel/
     fi
 
     echo "30"
@@ -1750,11 +1750,11 @@ install_run() {
     elif [ "$de_set" = "xfce4 (MagyArch)" ]
     then
         arch_chroot "pacman -S --noconfirm --needed xfce4 xfce4-goodies "
-        cp -rf /magyarch_xfce4/usr/share/backgrounds/magyarch/ /mnt/usr/share/backgrounds/
-        cp -rf /magyarch_xfce4/usr/share/icons/braincolor-green /mnt/usr/share/icons/
-        cp -rf /magyarch_xfce4/usr/share/themes/MagyArch-dark /mnt/usr/share/themes/
-        cp -rf /magyarch_xfce4/etc/lightdm/lightdm-gtk-greeter.conf /mnt/etc/lightdm/
-        cp -rf /magyarch_xfce4/usr/share/themes/MagyArch-braincolor /mnt/usr/share/themes/""
+        cp -rf magyarch_xfce4/usr/share/backgrounds/magyarch/ /mnt/usr/share/backgrounds/
+        cp -rf magyarch_xfce4/usr/share/icons/braincolor-green /mnt/usr/share/icons/
+        cp -rf magyarch_xfce4/usr/share/themes/MagyArch-dark /mnt/usr/share/themes/
+        cp -rf magyarch_xfce4/etc/lightdm/lightdm-gtk-greeter.conf /mnt/etc/lightdm/
+        cp -rf magyarch_xfce4/usr/share/themes/MagyArch-braincolor /mnt/usr/share/themes/""
 
         # arch_chroot "rm -rf /mnt/mnt"
 
